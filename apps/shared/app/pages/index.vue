@@ -50,31 +50,67 @@
       <!-- Step 1 -->
       <div class="w-full border border-green-500 rounded-2xl p-4">
         <span class="text-xl font-semibold text-green-500">
-          1. Crop Questions from PDF
+          1. Extract Questions from PDF
         </span>
-        <p class="mt-2 text-left">
-          Use the
-          <NuxtLink
-            to="/pdf-cropper"
-            class="underline text-green-400"
-            target="_blank"
-          >
-            PDF Cropper
-          </NuxtLink>
-          to upload your PDF containing questions and mark each question area along with its details like subject name, section name, and question type (MCQ, MSQ, NAT) etc.<br>
-          Instructions/Docs for that are on PDF Cropper page itself.
-        </p>
-        <p class="mt-2 text-left">
-          The Output data of PDF Cropper is essential for the
-          <NuxtLink
-            to="/cbt/interface"
-            class="underline text-green-400"
-            target="_blank"
-          >
-            Test Interface
-          </NuxtLink>
-          to display and manage the questions accurately.
-        </p>
+        
+        <!-- AI Extraction Option (Feature Flag Controlled) -->
+        <div v-if="aiExtractionEnabled" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <Icon name="lucide:sparkles" class="h-5 w-5 text-blue-600" />
+            <span class="font-semibold text-blue-800">🆕 AI-Powered Extraction (Recommended)</span>
+          </div>
+          <p class="text-sm text-blue-700 mb-2">
+            Use our new AI-powered extractor to automatically extract questions from your PDF with confidence scoring and diagram detection.
+          </p>
+          <div class="flex gap-2">
+            <NuxtLink
+              to="/ai-extractor"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+            >
+              <Icon name="lucide:zap" class="h-4 w-4" />
+              Try AI Extractor
+            </NuxtLink>
+            <NuxtLink
+              v-if="reviewInterfaceEnabled"
+              to="/review-interface"
+              class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors"
+            >
+              <Icon name="lucide:edit-3" class="h-4 w-4" />
+              Review Interface
+            </NuxtLink>
+          </div>
+        </div>
+        
+        <!-- Traditional Method -->
+        <div class="mt-3" :class="{ 'p-3 bg-gray-50 border border-gray-200 rounded-lg': aiExtractionEnabled }">
+          <div v-if="aiExtractionEnabled" class="flex items-center gap-2 mb-2">
+            <Icon name="lucide:crop" class="h-5 w-5 text-gray-600" />
+            <span class="font-semibold text-gray-800">Traditional Manual Method</span>
+          </div>
+          <p class="text-left" :class="{ 'text-sm text-gray-700': aiExtractionEnabled }">
+            Use the
+            <NuxtLink
+              to="/pdf-cropper"
+              class="underline text-green-400"
+              target="_blank"
+            >
+              PDF Cropper
+            </NuxtLink>
+            to upload your PDF containing questions and manually mark each question area along with its details like subject name, section name, and question type (MCQ, MSQ, NAT) etc.<br>
+            Instructions/Docs for that are on PDF Cropper page itself.
+          </p>
+          <p class="mt-2 text-left" :class="{ 'text-sm text-gray-700': aiExtractionEnabled }">
+            The Output data of PDF Cropper is essential for the
+            <NuxtLink
+              to="/cbt/interface"
+              class="underline text-green-400"
+              target="_blank"
+            >
+              Test Interface
+            </NuxtLink>
+            to display and manage the questions accurately.
+          </p>
+        </div>
       </div>
       <!-- After Step 1 -->
       <div class="w-full border border-yellow-400 rounded-2xl p-4">
@@ -343,9 +379,17 @@
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '#imports'
+import { getFeatureFlags } from '#layers/shared/app/composables/useFeatureFlags'
 
 const appStore = useAppStore()
 const { isBackupWebsite } = storeToRefs(appStore)
+
+// Feature flags
+const featureFlags = getFeatureFlags()
+const {
+  aiExtractionEnabled,
+  reviewInterfaceEnabled
+} = featureFlags
 
 useHead({
   title: 'Rankify - Turn PDF of Questions into CBT (Computer Based Test)',

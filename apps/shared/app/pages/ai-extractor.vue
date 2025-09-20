@@ -13,6 +13,7 @@
 // Page for AI-powered PDF extraction
 definePageMeta({
   title: 'AI PDF Extractor',
-  description: 'Extract questions from PDF using AI-powered analysis'
+  description: 'Extract questions from PDF using AI-powered analysis',
+  middleware: 'ai-features'
 })
 </script>

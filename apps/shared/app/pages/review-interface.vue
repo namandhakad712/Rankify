@@ -21,7 +21,8 @@ import type { AIExtractedQuestion } from '#layers/shared/app/utils/geminiAPIClie
 // Page for reviewing AI-extracted questions
 definePageMeta({
   title: 'Review Interface',
-  description: 'Review and edit AI-extracted questions'
+  description: 'Review and edit AI-extracted questions',
+  middleware: 'ai-features'
 })
 
 // State
