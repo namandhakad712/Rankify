@@ -1,0 +1,60 @@
+name: Upload Release Assets
+
+on:
+  release:
+    types: [prereleased]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: ${{ vars.NODE_VERSION }}
+  STATIC_ASSET_NAME: ${{ vars.STATIC_ASSET_NAME }}
+  BUILD_OUTPUT_FOLDER: ${{ vars.BUILD_OUTPUT_FOLDER }}
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        run: |
+          corepack enable
+          corepack use pnpm@latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Build static site
+        env:
+          DISABLE_SEO_MODULES: true
+        run: pnpm generate:web
+
+      - name: Zip generated static site
+        run: |
+          [ ! -d "$BUILD_OUTPUT_FOLDER" ] && echo "Build output not found!" && exit 1
+          mv "$BUILD_OUTPUT_FOLDER" "$STATIC_ASSET_NAME"
+          zip -r "${STATIC_ASSET_NAME}.zip" "$STATIC_ASSET_NAME"
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME=$(gh release list --json tagName --limit 1 --jq '.[0].tagName')
+          if [[ -n "$TAG_NAME" ]]; then
+            echo "Uploading to release: $TAG_NAME"
+            gh release upload "$TAG_NAME" "${STATIC_ASSET_NAME}.zip" --clobber
+          else
+            echo "tagName of Latest Release is empty"
+            exit 1
+          fi

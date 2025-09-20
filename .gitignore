@@ -1,0 +1,62 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+dist-*/
+**/jiti/
+**/node-compile-cache/
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# File editor configs
+.vscode
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md
+
+# AI coder and assistant files
+.qwen
+QWEN.md
+.kiro
+.ai/
+.ai_cache/
+.copilot/
+.copilot-cache/
+.github-copilot/
+.chat/
+.conversation/
+.promptcache/
+.ai_help/
+.ai_sessions/
+cursor-*.md
+cursor-*.json
+clode-*.md
+clode-*.json
+kiro-*.md
+kiro-*.json
+
+# Others
+.DS_Store
