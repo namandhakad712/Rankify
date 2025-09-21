@@ -193,7 +193,7 @@ export const errorConfig = {
       enabled: true,
       errorBoundaries: {
         enabled: true,
-        fallbackComponent: 'DefaultErrorFallback',
+        fallbackComponent: '#layers/shared/app/components/Base/DefaultErrorFallback',
         resetOnPropsChange: true
       },
       notifications: {

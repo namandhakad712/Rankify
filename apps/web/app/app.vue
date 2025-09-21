@@ -29,9 +29,15 @@
 <script setup lang="ts">
 import { MiscConsts, DeprecatedLocalStorageKeys } from '#layers/shared/shared/enums'
 import { Toaster } from '#layers/shared/app/components/ui/sonner'
+import { inject } from '@vercel/analytics'
 
 if (import.meta.server) {
   defineOgImageComponent('OgImage')
+}
+
+// Initialize Vercel Analytics
+if (import.meta.client) {
+  inject()
 }
 
 const toastPosition = useToastPosition()

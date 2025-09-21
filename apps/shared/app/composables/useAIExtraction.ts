@@ -11,7 +11,7 @@ import type { AIGeneratedTestData } from '#layers/shared/app/utils/aiStorageUtil
 
 export interface AIExtractionConfig {
   apiKey: string
-  model: 'gemini-1.5-flash' | 'gemini-1.5-pro'
+  model: 'gemini-2.5-pro' | 'gemini-2.5-flash' | 'gemini-2.5-flash-lite' | 'gemini-2.0-flash' | 'gemini-1.5-flash' | 'gemini-1.5-pro'
   confidenceThreshold: number
   enableDiagramDetection: boolean
   enableCache: boolean
@@ -40,7 +40,7 @@ export function useAIExtraction() {
 
   const config = ref<AIExtractionConfig>({
     apiKey: '',
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     confidenceThreshold: 2.5,
     enableDiagramDetection: true,
     enableCache: true,

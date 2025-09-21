@@ -57,6 +57,9 @@ clode-*.md
 clode-*.json
 kiro-*.md
 kiro-*.json
+GEMINI.md
+.gemini
+.spec-workflow
 
 # Others
 .DS_Store

@@ -89,8 +89,12 @@
                   <UiSelectValue placeholder="Select model" />
                 </UiSelectTrigger>
                 <UiSelectContent>
-                  <UiSelectItem value="gemini-1.5-flash">Gemini 1.5 Flash (Faster)</UiSelectItem>
-                  <UiSelectItem value="gemini-1.5-pro">Gemini 1.5 Pro (Better Quality)</UiSelectItem>
+                  <UiSelectItem value="gemini-2.5-pro">Gemini 2.5 Pro (Best Quality)</UiSelectItem>
+                  <UiSelectItem value="gemini-2.5-flash">Gemini 2.5 Flash (Faster)</UiSelectItem>
+                  <UiSelectItem value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Fastest)</UiSelectItem>
+                  <UiSelectItem value="gemini-2.0-flash">Gemini 2.0 Flash</UiSelectItem>
+                  <UiSelectItem value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</UiSelectItem>
+                  <UiSelectItem value="gemini-1.5-pro">Gemini 1.5 Pro (Legacy)</UiSelectItem>
                 </UiSelectContent>
               </UiSelect>
             </div>
@@ -402,6 +406,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AIExtractionEngine, { aiExtractionUtils, type AIExtractionProgress } from '#layers/shared/app/utils/aiExtractionUtils'
 import { confidenceUtils } from '#layers/shared/app/utils/confidenceScoringUtils'
 import { aiJsonSchemaUtils } from '#layers/shared/app/utils/aiJsonSchemaUtils'
@@ -410,7 +415,7 @@ import type { AIExtractionResult, AIExtractedQuestion } from '#layers/shared/app
 // Reactive state
 const config = ref({
   apiKey: '',
-  model: 'gemini-1.5-flash',
+  model: 'gemini-2.5-flash',
   confidenceThreshold: 2.5,
   enableDiagramDetection: true,
   enableCache: true
@@ -597,9 +602,16 @@ const exportResults = (format: 'ai' | 'rankify' = 'rankify') => {
   URL.revokeObjectURL(url)
 }
 
-const openReviewInterface = () => {
-  // TODO: Navigate to review interface with extracted data
-  console.log('Opening review interface with:', extractionResult.value)
+const openReviewInterface = async () => {
+  if (!extractionResult.value) return
+  
+  // Store the extracted questions in session storage
+  sessionStorage.setItem('aiExtractedQuestions', JSON.stringify(extractionResult.value.questions))
+  sessionStorage.setItem('aiExtractedFileName', selectedFile.value?.name || 'extracted-questions.pdf')
+  
+  // Navigate to the review interface
+  const router = useRouter()
+  await router.push('/review-interface')
 }
 
 const loadExtractionStats = async () => {

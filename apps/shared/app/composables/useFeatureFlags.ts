@@ -29,7 +29,6 @@ const defaultFlags: FeatureFlag[] = [
     description: 'Enable AI-powered question extraction from PDFs using Google Gemini',
     enabled: true,
     rolloutPercentage: 100,
-    dependencies: ['gemini_api'],
     environment: ['development', 'staging', 'production']
   },
   {

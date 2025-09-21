@@ -1,0 +1,468 @@
+/**
+ * Accessibility Styles for Advanced Diagram Detection System
+ * Provides comprehensive accessibility support and WCAG compliance
+ */
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Focus Management */
+.focus-indicator {
+  outline: none;
+  position: relative;
+}
+
+.focus-indicator.active::before,
+.focus-indicator:focus::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid var(--focus-color, #0066cc);
+  border-radius: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --bg-primary: #000000;
+  --text-primary: #ffffff;
+  --border-color: #ffffff;
+  --focus-color: #ffff00;
+  --diagram-overlay-bg: rgba(255, 255, 255, 0.9);
+  --diagram-overlay-border: #ffffff;
+}
+
+.high-contrast .diagram-overlay {
+  background-color: var(--diagram-overlay-bg);
+  border: 2px solid var(--diagram-overlay-border);
+}
+
+.high-contrast button,
+.high-contrast .btn {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #ffffff;
+}
+
+.high-contrast button:hover,
+.high-contrast .btn:hover {
+  background-color: #ffff00;
+  color: #000000;
+}
+
+/* Reduced Motion */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Font Size Scaling */
+[data-font-size="small"] {
+  --font-size-scale: 0.875;
+}
+
+[data-font-size="medium"] {
+  --font-size-scale: 1;
+}
+
+[data-font-size="large"] {
+  --font-size-scale: 1.125;
+}
+
+[data-font-size="extra-large"] {
+  --font-size-scale: 1.25;
+}
+
+/* Apply font scaling */
+body {
+  font-size: calc(var(--font-size-base, 16px) * var(--font-size-scale, 1));
+}
+
+/* Color Scheme Support */
+[data-color-scheme="dark"] {
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --border-color: #404040;
+  --diagram-overlay-bg: rgba(255, 255, 255, 0.1);
+  --diagram-overlay-border: #666666;
+}
+
+[data-color-scheme="light"] {
+  --bg-primary: #ffffff;
+  --text-primary: #000000;
+  --border-color: #e0e0e0;
+  --diagram-overlay-bg: rgba(0, 0, 0, 0.1);
+  --diagram-overlay-border: #cccccc;
+}
+
+/* Keyboard Navigation Styles */
+.keyboard-user *:focus {
+  outline: 2px solid var(--focus-color, #0066cc);
+  outline-offset: 2px;
+}
+
+.keyboard-user .diagram-overlay:focus {
+  outline: 3px solid var(--focus-color, #0066cc);
+  outline-offset: 0;
+  z-index: 1001;
+}
+
+/* Diagram Accessibility */
+.diagram-overlay {
+  position: absolute;
+  border: 2px solid var(--diagram-overlay-border, #cccccc);
+  background-color: var(--diagram-overlay-bg, rgba(0, 0, 0, 0.1));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.diagram-overlay:hover {
+  border-color: var(--focus-color, #0066cc);
+  background-color: var(--diagram-overlay-bg, rgba(0, 100, 204, 0.1));
+}
+
+.diagram-overlay:focus {
+  border-color: var(--focus-color, #0066cc);
+  background-color: var(--diagram-overlay-bg, rgba(0, 100, 204, 0.2));
+  box-shadow: 0 0 0 2px var(--focus-color, #0066cc);
+}
+
+.diagram-overlay.focused {
+  border-color: var(--focus-color, #0066cc);
+  background-color: var(--diagram-overlay-bg, rgba(0, 100, 204, 0.2));
+  box-shadow: 0 0 0 2px var(--focus-color, #0066cc);
+}
+
+/* Diagram Controls */
+.diagram-controls {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.diagram-overlay:hover .diagram-controls,
+.diagram-overlay:focus .diagram-controls,
+.diagram-overlay.focused .diagram-controls {
+  opacity: 1;
+}
+
+.diagram-controls button {
+  padding: 4px 8px;
+  font-size: 12px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.diagram-controls button:hover,
+.diagram-controls button:focus {
+  background: var(--focus-color, #0066cc);
+  color: white;
+}
+
+/* Touch Optimization */
+.touch-device .diagram-overlay {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-device .diagram-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.touch-optimized {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+/* Loading States */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive Image Styles */
+.responsive-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.responsive-image.loading {
+  opacity: 0.7;
+}
+
+.responsive-image.loaded {
+  opacity: 1;
+}
+
+/* Announcement Styles */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 8px;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Keyboard Shortcuts Help */
+.keyboard-shortcuts {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  z-index: 10000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.keyboard-shortcuts h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.keyboard-shortcuts ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.keyboard-shortcuts li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.keyboard-shortcuts li:last-child {
+  border-bottom: none;
+}
+
+.keyboard-shortcuts .shortcut {
+  font-family: monospace;
+  background: var(--border-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* Error States */
+.error-message {
+  color: #d32f2f;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.high-contrast .error-message {
+  color: #ffffff;
+  background: #d32f2f;
+  border-color: #ffffff;
+}
+
+/* Success States */
+.success-message {
+  color: #2e7d32;
+  background: #e8f5e8;
+  border: 1px solid #c8e6c9;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.high-contrast .success-message {
+  color: #000000;
+  background: #4caf50;
+  border-color: #ffffff;
+}
+
+/* Progress Indicators */
+.progress-indicator {
+  width: 100%;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progress-indicator .progress-bar {
+  height: 100%;
+  background: var(--focus-color, #0066cc);
+  transition: width 0.3s ease;
+}
+
+.progress-indicator[aria-valuenow="100"] .progress-bar {
+  background: #4caf50;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1001;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 14px;
+}
+
+.tooltip:hover .tooltip-text,
+.tooltip:focus .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--text-primary) transparent transparent transparent;
+}
+
+/* Print Styles */
+@media print {
+  .diagram-overlay {
+    border: 2px solid #000000 !important;
+    background: transparent !important;
+  }
+  
+  .diagram-controls {
+    display: none !important;
+  }
+  
+  .skip-link,
+  .keyboard-shortcuts {
+    display: none !important;
+  }
+}
+
+/* Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Prefers High Contrast */
+@media (prefers-contrast: high) {
+  .diagram-overlay {
+    border-width: 3px;
+  }
+  
+  .focus-indicator.active::before,
+  .focus-indicator:focus::before {
+    border-width: 3px;
+  }
+}
+
+/* Prefers Dark Color Scheme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --text-primary: #ffffff;
+    --border-color: #404040;
+    --focus-color: #66b3ff;
+  }
+}

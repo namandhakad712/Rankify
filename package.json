@@ -1,21 +1,81 @@
 {
-  "name": "rankify",
+  "name": "advanced-diagram-detection",
+  "version": "1.0.0",
+  "description": "Advanced PDF processing with AI-powered diagram detection and coordinate-based rendering",
   "private": true,
-  "description": "Turn PDF of questions into CBT (Computer-Based Test)",
-  "license": "AGPL-3.0-or-later",
-  "author": {
-    "name": "Hi",
-    "email": "felearn@zohomail.in"
-  },
   "type": "module",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "prepare": "pnpm --filter ./apps/shared prepare",
-    "dev:web": "pnpm --filter ./apps/web dev",
-    "generate:web": "pnpm --filter ./apps/web generate",
-    "prepare:web": "pnpm --filter ./apps/web prepare"
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "nuxt typecheck",
+    "analyze": "nuxt analyze",
+    "cleanup": "rm -rf .nuxt .output dist node_modules/.cache",
+    "docker:build": "docker build -t advanced-diagram-detection .",
+    "docker:run": "docker run -p 3000:3000 advanced-diagram-detection"
   },
-  "version": "1.25.0"
+  "dependencies": {
+    "@google/generative-ai": "^0.15.0",
+    "@nuxt/kit": "^3.12.4",
+    "@pinia/nuxt": "^0.5.1",
+    "dexie": "^4.0.8",
+    "nuxt": "^3.12.4",
+    "pdfjs-dist": "^4.4.168",
+    "vue": "^3.4.38",
+    "vue-router": "^4.4.3"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.3.9",
+    "@nuxt/eslint": "^0.5.0",
+    "@nuxt/test-utils": "^3.14.0",
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@playwright/test": "^1.46.0",
+    "@types/node": "^20.14.15",
+    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/ui": "^2.0.5",
+    "@vue/test-utils": "^2.4.6",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.9.0",
+    "happy-dom": "^14.12.3",
+    "playwright-core": "^1.46.0",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5",
+    "vue-tsc": "^3.0.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "pdf-processing",
+    "diagram-detection",
+    "ai",
+    "gemini",
+    "accessibility",
+    "responsive-design",
+    "nuxt",
+    "vue",
+    "typescript"
+  ],
+  "author": "Advanced Diagram Detection Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/advanced-diagram-detection.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/advanced-diagram-detection/issues"
+  },
+  "homepage": "https://github.com/your-org/advanced-diagram-detection#readme"
 }

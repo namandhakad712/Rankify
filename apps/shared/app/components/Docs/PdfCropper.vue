@@ -667,12 +667,12 @@ const imageLoadingState = shallowReactive({
 const pdfCropperVideoLink = 'https://www.youtube.com/watch?v=YTzJHUIb8Xs'
 
 const image1Urls = [
-  'https://cdn.jsdelivr.net/gh/TheMoonVyy/rankify/app/assets/images/pdf-cropper/docs-image-1.svg',
+  'https://cdn.jsdelivr.net/gh/namandhakad712/rankify/app/assets/images/pdf-cropper/docs-image-1.svg',
   Image1,
 ]
 
 const image2Urls = [
-  'https://cdn.jsdelivr.net/gh/TheMoonVyy/rankify/app/assets/images/pdf-cropper/docs-image-2.svg',
+  'https://cdn.jsdelivr.net/gh/namandhakad712/rankify/app/assets/images/pdf-cropper/docs-image-2.svg',
   Image2,
 ]
 

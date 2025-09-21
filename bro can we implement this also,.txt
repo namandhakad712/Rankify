@@ -1,0 +1,17 @@
+bro can we implement this also,
+
+as PDF are converted into image internally, the gemini can perform the 
+Cropping" the Diagrams
+This is the coolest part. While the Gemini API won't send you back a cropped image file, it can do something even better: it can tell you exactly where the diagram is on the page.
+
+You'll ask it for the bounding box coordinates.
+
+The API will respond with something like: "diagram_coordinates": {"x1": 150, "y1": 300, "x2": 450, "y2": 600}.
+
+and any toll will exactly show the cropped area in question too.
+
+2)Then on next manual review page, if the diagram is cutted or improperly cropped, can be rectified just , user can click edit for diagram, and then the system will show him that page, and user can crop image effectively.
+
+3)After manual review , iis their any button, which send user to start his test. sending and saving the questions,data,cropped,area coardunates.etc.That CBT is ready to use for user.If not add presets on reviw page of common exam [JEE AND NEET] , prebuilt cbt configuration, serach web for schema of examination.
+
+my motto is that better to crop and save is better that as pdf is already dissembled into images, just in question paper the diagram is shown on the coardinates area, requingno cutting and creating new files, so the data will be clear and formatted. 

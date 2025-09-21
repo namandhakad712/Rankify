@@ -149,7 +149,7 @@ describe('AI Integration Tests', () => {
       const question = sectionsData['Europe']['1']
       expect(question.confidence).toBe(4.5)
       expect(question.aiMetadata).toBeDefined()
-      expect(question.aiMetadata.extractionModel).toBe('gemini-1.5-flash')
+      expect(question.aiMetadata.extractionModel).toBe('gemini-2.5-flash')
       expect(question.aiMetadata.originalId).toBe(1)
     })
 

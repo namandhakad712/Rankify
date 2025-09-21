@@ -1,0 +1,94 @@
+/**
+ * Accessibility Styles for Advanced Diagram Detection System
+ * Provides comprehensive accessibility features and WCAG compliance
+ */
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Focus Management */
+.focus-indicator {
+  outline: none;
+  position: relative;
+}
+
+.focus-indicator.active::before,
+.focus-indicator:focus::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid var(--focus-color, #0066cc);
+  border-radius: 4px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --bg-primary: #000000;
+  --text-primary: #ffffff;
+  --border-color: #ffffff;
+  --focus-color: #ffff00;
+}
+
+/* Reduced Motion */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Font Size Scaling */
+[data-font-size="small"] {
+  --font-size-scale: 0.875;
+}
+
+[data-font-size="medium"] {
+  --font-size-scale: 1;
+}
+
+[data-font-size="large"] {
+  --font-size-scale: 1.125;
+}
+
+[data-font-size="extra-large"] {
+  --font-size-scale: 1.25;
+}
+
+/* Apply font scaling */
+body {
+  font-size: calc(var(--font-size-base, 16px) * var(--font-size-scale, 1));
+}
+
+/* Color Scheme Support */
+[data-color-scheme="dark"] {
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --border-color: #404040;
+}
+
+[data-color-scheme="light"] {
+  --bg-primary: #ffffff;
+  --text-primary: #000000;
+  --border-color: #e0e0e0;
+}
+
+/* Keyboard Navigation Styles */
+.keyboard-user *:focus {
+  outline: 2px solid var(--focus-color, #0066cc);
+  outline-offset: 2px;
+}

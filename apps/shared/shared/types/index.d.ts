@@ -89,3 +89,6 @@ export type AnswerKeyJsonOutput = AnswerKeyJsonOutputBasedOnPdfCropper
 export type QuestionsImageUrls = {
   [queId: number | string]: string[]
 }
+
+// Re-export diagram detection types
+export * from './diagram-detection'

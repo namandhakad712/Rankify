@@ -49,11 +49,39 @@ export default defineNuxtConfig({
       legalComments: 'none',
     },
     build: {
+      assetsInclude: ['**/*.wasm'],
       terserOptions: {
         format: { comments: false },
       },
       cssMinify: 'lightningcss',
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.wasm')) {
+              return 'assets/[name].[hash][extname]';
+            }
+            return 'assets/[name].[hash].[ext]';
+          }
+        }
+      }
     },
+    server: {
+      headers: {
+        'Cross-Origin-Embedder-Policy': 'credentialless',
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Resource-Policy': 'cross-origin'
+      },
+      mimeTypes: {
+        'application/wasm': ['wasm']
+      },
+      fs: {
+        allow: ['..', '../..']
+      }
+    },
+    optimizeDeps: {
+      exclude: ['mupdf'],
+      include: ['comlink']
+    }
   },
   echarts: {
     charts: ['LineChart', 'PieChart'],
@@ -77,7 +105,15 @@ export default defineNuxtConfig({
         normalizeIconName: false,
       },
     ],
-    provider: 'none',
+    // Use default provider for better compatibility
+    serverBundle: {
+      collections: ['lucide', 'line-md']
+    },
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 512,
+      collections: ['lucide', 'line-md']
+    }
   },
   shadcn: {
     componentDir: '../shared/app/components/ui',

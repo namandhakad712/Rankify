@@ -1073,11 +1073,11 @@
             URLs that work include links to file on public GitHub repositories.<br>
             For example, here is the URL of demo test data on this project's GitHub repo which will work:<br>
             <a
-              href="https://github.com/TheMoonVyy/rankify/blob/main/apps/shared/app/assets/zip/demo_test_data_pre_generated.zip"
+              href="https://github.com/namandhakad712/rankify/blob/main/apps/shared/app/assets/zip/demo_test_data_pre_generated.zip"
               target="_blank"
               class="text-blue-400 underline"
             >
-              https://github.com/TheMoonVyy/rankify/blob/main/apps/shared/app/assets/zip/demo_test_data_pre_generated.zip
+              https://github.com/namandhakad712/rankify/blob/main/apps/shared/app/assets/zip/demo_test_data_pre_generated.zip
             </a>
           </p>
           <p>

@@ -1,0 +1,122 @@
+/**
+ * Responsive Design Styles for Advanced Diagram Detection System
+ * Provides comprehensive responsive layouts and breakpoint management
+ */
+
+/* CSS Custom Properties for Responsive Design */
+:root {
+  --viewport-width: 100vw;
+  --viewport-height: 100vh;
+  --current-breakpoint: 'md';
+  --columns: 3;
+  --gutters: 24px;
+  --margins: 24px;
+  --font-size-base: 16px;
+  --font-size-scale: 1;
+}
+
+/* Base Responsive Styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Container Styles */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--margins);
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 var(--margins);
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gutters);
+  width: 100%;
+}
+
+/* Flexbox Utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* Responsive Images */
+.responsive-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Breakpoint-Specific Styles */
+.bp-xs {
+  --columns: 1;
+  --gutters: 16px;
+  --margins: 16px;
+}
+
+.bp-sm {
+  --columns: 2;
+  --gutters: 20px;
+  --margins: 20px;
+}
+
+.bp-md {
+  --columns: 3;
+  --gutters: 24px;
+  --margins: 24px;
+}
+
+.bp-lg {
+  --columns: 4;
+  --gutters: 28px;
+  --margins: 28px;
+}
+
+.bp-xl {
+  --columns: 5;
+  --gutters: 32px;
+  --margins: 32px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 767px) {
+  :root {
+    --columns: 1;
+    --gutters: 16px;
+    --margins: 16px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  :root {
+    --columns: 2;
+    --gutters: 20px;
+    --margins: 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --columns: 3;
+    --gutters: 24px;
+    --margins: 24px;
+  }
+}

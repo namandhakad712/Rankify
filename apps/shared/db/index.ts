@@ -19,6 +19,13 @@ import type {
   TestInterfaceOrResultJsonOutput,
 } from '#layers/shared/shared/types'
 
+import type {
+  CoordinateMetadata,
+  PageImageData,
+  CBTPreset,
+  DiagramCache,
+} from '#layers/shared/shared/types/diagram-detection'
+
 import { utilGetTestResultOverview } from '#layers/shared/app/utils/utils'
 import type {
   SettingsData,
@@ -49,6 +56,12 @@ export class RankifyDB extends Dexie implements IRankifyDB {
   testResultOverviews!: EntityTable<TestResultOverviewDB, 'id'>
   testOutputDatas!: EntityTable<TestOutputDataDB, 'id'>
   testNotes!: EntityTable<TestNotesDB, 'id'>
+  
+  // New tables for advanced diagram detection
+  diagramCoordinates!: EntityTable<CoordinateMetadata, 'questionId'>
+  pageImages!: EntityTable<PageImageData, 'id'>
+  cbtPresets!: EntityTable<CBTPreset, 'id'>
+  diagramCache!: EntityTable<DiagramCache, 'cacheKey'>
 
   constructor() {
     super('CBT-Interface')
@@ -62,6 +75,11 @@ export class RankifyDB extends Dexie implements IRankifyDB {
       testResultOverviews: 'id,testName,testStartTime,testEndTime,[testName+testStartTime+testEndTime]',
       testOutputDatas: 'id++',
       testNotes: 'id',
+      // New tables for advanced diagram detection
+      diagramCoordinates: 'questionId,pageNumber',
+      pageImages: 'id,testId,pageNumber',
+      cbtPresets: 'id,examType',
+      diagramCache: 'cacheKey,questionId',
     }
 
     this.version(4).stores(dbScheme).upgrade(async (tx) => {
@@ -126,6 +144,15 @@ export class RankifyDB extends Dexie implements IRankifyDB {
             } as unknown as CbtUiSettings['questionPanel']['answerOptionsFormat']
           }
         })
+    })
+
+    // Version 6: Add advanced diagram detection tables
+    this.version(6).stores(dbScheme).upgrade(async (tx) => {
+      // Initialize new tables - they will be created automatically
+      console.log('Database upgraded to version 6 with diagram detection support')
+      
+      // Add default CBT presets for JEE and NEET
+      await this.initializeDefaultPresets(tx)
     })
   }
 
@@ -525,5 +552,253 @@ export class RankifyDB extends Dexie implements IRankifyDB {
     return this.testNotes.update(testId, {
       [`notes.${queId}`]: notesText,
     })
+  }
+
+  // Advanced Diagram Detection Methods
+
+  /**
+   * Add diagram coordinates for a question
+   */
+  async addDiagramCoordinates(data: CoordinateMetadata): Promise<string> {
+    await this.diagramCoordinates.put(data)
+    return data.questionId
+  }
+
+  /**
+   * Get diagram coordinates for a question
+   */
+  async getDiagramCoordinates(questionId: string): Promise<CoordinateMetadata | undefined> {
+    return this.diagramCoordinates.get(questionId)
+  }
+
+  /**
+   * Update diagram coordinates for a question
+   */
+  async updateDiagramCoordinates(questionId: string, data: Partial<CoordinateMetadata>): Promise<void> {
+    await this.diagramCoordinates.update(questionId, data)
+  }
+
+  /**
+   * Delete diagram coordinates for a question
+   */
+  async deleteDiagramCoordinates(questionId: string): Promise<void> {
+    await this.diagramCoordinates.delete(questionId)
+  }
+
+  /**
+   * Get all diagram coordinates for a specific page
+   */
+  async getDiagramCoordinatesByPage(pageNumber: number): Promise<CoordinateMetadata[]> {
+    return this.diagramCoordinates.where('pageNumber').equals(pageNumber).toArray()
+  }
+
+  /**
+   * Bulk add diagram coordinates
+   */
+  async bulkAddDiagramCoordinates(coordinates: CoordinateMetadata[]): Promise<string[]> {
+    await this.diagramCoordinates.bulkPut(coordinates)
+    return coordinates.map(c => c.questionId)
+  }
+
+  /**
+   * Add page image data
+   */
+  async addPageImage(data: PageImageData): Promise<string> {
+    await this.pageImages.put(data)
+    return data.id
+  }
+
+  /**
+   * Get page image by ID
+   */
+  async getPageImage(id: string): Promise<PageImageData | undefined> {
+    return this.pageImages.get(id)
+  }
+
+  /**
+   * Get all page images for a test
+   */
+  async getPageImagesByTestId(testId: string): Promise<PageImageData[]> {
+    return this.pageImages.where('testId').equals(testId).toArray()
+  }
+
+  /**
+   * Delete page image
+   */
+  async deletePageImage(id: string): Promise<void> {
+    await this.pageImages.delete(id)
+  }
+
+  /**
+   * Delete all page images for a test
+   */
+  async deletePageImagesByTestId(testId: string): Promise<void> {
+    await this.pageImages.where('testId').equals(testId).delete()
+  }
+
+  /**
+   * Add CBT preset
+   */
+  async addCBTPreset(data: CBTPreset): Promise<string> {
+    await this.cbtPresets.put(data)
+    return data.id
+  }
+
+  /**
+   * Get CBT preset by ID
+   */
+  async getCBTPreset(id: string): Promise<CBTPreset | undefined> {
+    return this.cbtPresets.get(id)
+  }
+
+  /**
+   * Get CBT presets by exam type
+   */
+  async getCBTPresetsByExamType(examType: string): Promise<CBTPreset[]> {
+    return this.cbtPresets.where('examType').equals(examType).toArray()
+  }
+
+  /**
+   * Get all CBT presets
+   */
+  async getAllCBTPresets(): Promise<CBTPreset[]> {
+    return this.cbtPresets.toArray()
+  }
+
+  /**
+   * Update CBT preset
+   */
+  async updateCBTPreset(id: string, data: Partial<CBTPreset>): Promise<void> {
+    await this.cbtPresets.update(id, data)
+  }
+
+  /**
+   * Delete CBT preset
+   */
+  async deleteCBTPreset(id: string): Promise<void> {
+    await this.cbtPresets.delete(id)
+  }
+
+  /**
+   * Add diagram cache entry
+   */
+  async addDiagramCache(data: DiagramCache): Promise<string> {
+    await this.diagramCache.put(data)
+    return data.cacheKey
+  }
+
+  /**
+   * Get diagram cache entry
+   */
+  async getDiagramCache(cacheKey: string): Promise<DiagramCache | undefined> {
+    return this.diagramCache.get(cacheKey)
+  }
+
+  /**
+   * Clean up old cache entries
+   */
+  async cleanupDiagramCache(olderThan: Date): Promise<void> {
+    await this.diagramCache.where('renderedAt').below(olderThan).delete()
+  }
+
+  /**
+   * Clear all diagram cache
+   */
+  async clearDiagramCache(): Promise<void> {
+    await this.diagramCache.clear()
+  }
+
+  /**
+   * Initialize default CBT presets during database upgrade
+   */
+  private async initializeDefaultPresets(tx: any): Promise<void> {
+    const defaultPresets: CBTPreset[] = [
+      {
+        id: 'jee-main-2024',
+        name: 'JEE Main 2024',
+        examType: 'JEE',
+        sections: [
+          {
+            name: 'Physics',
+            subjects: ['Physics'],
+            questionCount: 30,
+            timeAllocation: 3600 // 1 hour in seconds
+          },
+          {
+            name: 'Chemistry', 
+            subjects: ['Chemistry'],
+            questionCount: 30,
+            timeAllocation: 3600
+          },
+          {
+            name: 'Mathematics',
+            subjects: ['Mathematics'],
+            questionCount: 30,
+            timeAllocation: 3600
+          }
+        ],
+        timeLimit: 10800, // 3 hours total
+        markingScheme: {
+          correct: 4,
+          incorrect: -1,
+          unattempted: 0
+        },
+        questionDistribution: {
+          totalQuestions: 90,
+          sections: [
+            { name: 'Physics', subjects: ['Physics'], questionCount: 30, timeAllocation: 3600 },
+            { name: 'Chemistry', subjects: ['Chemistry'], questionCount: 30, timeAllocation: 3600 },
+            { name: 'Mathematics', subjects: ['Mathematics'], questionCount: 30, timeAllocation: 3600 }
+          ]
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 'neet-2024',
+        name: 'NEET 2024',
+        examType: 'NEET',
+        sections: [
+          {
+            name: 'Physics',
+            subjects: ['Physics'],
+            questionCount: 50,
+            timeAllocation: 3600
+          },
+          {
+            name: 'Chemistry',
+            subjects: ['Chemistry'],
+            questionCount: 50,
+            timeAllocation: 3600
+          },
+          {
+            name: 'Biology',
+            subjects: ['Botany', 'Zoology'],
+            questionCount: 100,
+            timeAllocation: 3600
+          }
+        ],
+        timeLimit: 10800, // 3 hours total
+        markingScheme: {
+          correct: 4,
+          incorrect: -1,
+          unattempted: 0
+        },
+        questionDistribution: {
+          totalQuestions: 200,
+          sections: [
+            { name: 'Physics', subjects: ['Physics'], questionCount: 50, timeAllocation: 3600 },
+            { name: 'Chemistry', subjects: ['Chemistry'], questionCount: 50, timeAllocation: 3600 },
+            { name: 'Biology', subjects: ['Botany', 'Zoology'], questionCount: 100, timeAllocation: 3600 }
+          ]
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ]
+
+    // Add presets to the new table
+    const presetsTable = tx.table('cbtPresets')
+    await presetsTable.bulkPut(defaultPresets)
   }
 }

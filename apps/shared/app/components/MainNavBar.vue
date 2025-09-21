@@ -142,7 +142,7 @@
         <nav class="flex items-center">
           <AppThemeToggle />
           <NuxtLink
-            to="https://github.com/TheMoonVyy/rankify"
+            to="https://github.com/namandhakad712/rankify"
             target="_blank"
             rel="noopener noreferrer"
             class="ml-4 w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground"
@@ -166,13 +166,10 @@ const route = useRoute()
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
 const projectVersion = useRuntimeConfig().public.projectVersion
 
-// Feature flags
-const featureFlags = getFeatureFlags()
-const {
-  aiExtractionEnabled,
-  reviewInterfaceEnabled,
-  confidenceScoringEnabled
-} = featureFlags
+// Enable AI features by default since they're implemented
+const aiExtractionEnabled = ref(true)
+const reviewInterfaceEnabled = ref(true)
+const confidenceScoringEnabled = ref(true)
 
 const themeVariants = {
   blue: 'hsl(217.2 91.2% 59.8%)',

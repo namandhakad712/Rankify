@@ -35,7 +35,7 @@ describe('GeminiAPIClient', () => {
     test('should initialize with API key', () => {
       expect(client.apiKey).toBe(mockApiKey)
       expect(client.baseURL).toBe('https://generativelanguage.googleapis.com/v1beta')
-      expect(client.model).toBe('gemini-1.5-flash')
+      expect(client.model).toBe('gemini-2.5-flash')
     })
 
     test('should throw error without API key', () => {

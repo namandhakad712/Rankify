@@ -1,3 +1,10 @@
+import type { 
+  CoordinateMetadata, 
+  PageImageData, 
+  CBTPreset, 
+  DiagramCache 
+} from './diagram-detection'
+
 export type SettingsData = {
   testSettings: CbtTestSettings
   uiSettings: CbtUiSettings
@@ -72,4 +79,30 @@ export interface IRankifyDB {
     queId: number | string,
     notesText?: string,
   ): Promise<number>
+
+  // Advanced Diagram Detection Methods
+  addDiagramCoordinates(data: CoordinateMetadata): Promise<string>
+  getDiagramCoordinates(questionId: string): Promise<CoordinateMetadata | undefined>
+  updateDiagramCoordinates(questionId: string, data: Partial<CoordinateMetadata>): Promise<void>
+  deleteDiagramCoordinates(questionId: string): Promise<void>
+  getDiagramCoordinatesByPage(pageNumber: number): Promise<CoordinateMetadata[]>
+  bulkAddDiagramCoordinates(coordinates: CoordinateMetadata[]): Promise<string[]>
+
+  addPageImage(data: PageImageData): Promise<string>
+  getPageImage(id: string): Promise<PageImageData | undefined>
+  getPageImagesByTestId(testId: string): Promise<PageImageData[]>
+  deletePageImage(id: string): Promise<void>
+  deletePageImagesByTestId(testId: string): Promise<void>
+
+  addCBTPreset(data: CBTPreset): Promise<string>
+  getCBTPreset(id: string): Promise<CBTPreset | undefined>
+  getCBTPresetsByExamType(examType: string): Promise<CBTPreset[]>
+  getAllCBTPresets(): Promise<CBTPreset[]>
+  updateCBTPreset(id: string, data: Partial<CBTPreset>): Promise<void>
+  deleteCBTPreset(id: string): Promise<void>
+
+  addDiagramCache(data: DiagramCache): Promise<string>
+  getDiagramCache(cacheKey: string): Promise<DiagramCache | undefined>
+  cleanupDiagramCache(olderThan: Date): Promise<void>
+  clearDiagramCache(): Promise<void>
 }

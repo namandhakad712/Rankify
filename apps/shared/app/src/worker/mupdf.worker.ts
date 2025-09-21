@@ -32,34 +32,23 @@ export class MuPdfProcessor {
   private mupdf: any = null
   private doc: Document | null = null
 
-  async loadMuPdf(preferLocalScript: boolean) {
-    if (!this.mupdf) {
-      const scriptUrls = preferLocalScript
-        ? SCRIPT_URLS.toReversed()
-        : SCRIPT_URLS
-
-      for (let i = 0; i < scriptUrls.length; i++) {
-        try {
-          this.mupdf = await import(/* @vite-ignore */ scriptUrls[i]!)
-          break
-        }
-        catch (err) {
-          console.error(`Error importing mupdf from url No. ${i + 1}:`, err)
-        }
-      }
-    }
-  }
+  async loadMuPdf(preferLocalScript: boolean) {\n    if (!this.mupdf) {\n      const scriptUrls = preferLocalScript\n        ? SCRIPT_URLS.toReversed()\n        : SCRIPT_URLS\n\n      let lastError = null;\n      for (let i = 0; i < scriptUrls.length; i++) {\n        try {\n          this.mupdf = await import(/* @vite-ignore */ scriptUrls[i]!)\n          console.log(`Successfully loaded mupdf from ${scriptUrls[i]}`);\n          break\n        }\n        catch (err) {\n          console.error(`Error importing mupdf from url No. ${i + 1}:`, err)\n          lastError = err;\n        }\n      }\n      \n      if (!this.mupdf) {\n        throw new Error(`Failed to load mupdf from all sources. Last error: ${lastError?.message || 'Unknown error'}`);\n      }\n    }\n  }
 
   async loadPdf(
     pdfFile: Uint8Array | ArrayBuffer,
     preferLocalScript: boolean,
     getPageCount: boolean = false,
   ) {
-    await this.loadMuPdf(preferLocalScript)
-    this.doc = this.mupdf.Document.openDocument(pdfFile, 'application/pdf')
+    try {
+      await this.loadMuPdf(preferLocalScript)
+      this.doc = this.mupdf.Document.openDocument(pdfFile, 'application/pdf')
 
-    if (getPageCount)
-      return this.doc?.countPages()
+      if (getPageCount)
+        return this.doc?.countPages()
+    } catch (error) {
+      console.error('Failed to load PDF in worker:', error)
+      throw new Error(`Failed to load PDF: ${error.message}. This may be due to a WASM loading issue.`);
+    }
   }
 
   private async getPagePixmap(

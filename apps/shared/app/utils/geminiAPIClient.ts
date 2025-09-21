@@ -62,7 +62,7 @@ export class GeminiAPIClient {
 
   constructor(config: GeminiAPIConfig) {
     this.config = {
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       maxRetries: 3,
       retryDelay: 1000,
       ...config,

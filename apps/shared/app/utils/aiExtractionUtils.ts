@@ -3,16 +3,22 @@
  * Combines all AI extraction components into a cohesive API
  */
 
-import { GeminiAPIClient, createGeminiClient, type GeminiAPIConfig, type AIExtractionResult } from './geminiAPIClient'
-import { PDFProcessor, createPDFProcessor, pdfUtils, type PDFProcessingResult } from './pdfProcessingUtils'
-import { getAIStorage, aiStorageUtils, type AIGeneratedTestData } from './aiStorageUtils'
+// Import types and interfaces first
+import type { GeminiAPIConfig, AIExtractionResult } from './geminiAPIClient'
+import type { PDFProcessingResult } from './pdfProcessingUtils'
+import type { AIGeneratedTestData } from './aiStorageUtils'
+import type { ValidationResult } from './confidenceScoringUtils'
+
+// Import functions and classes
+import { GeminiAPIClient, createGeminiClient } from './geminiAPIClient'
+import { PDFProcessor, createPDFProcessor, pdfUtils } from './pdfProcessingUtils'
+import { getAIStorage, aiStorageUtils } from './aiStorageUtils'
 import { 
   ConfidenceScorer, 
   QuestionValidator, 
   createConfidenceScorer, 
   createQuestionValidator,
-  confidenceUtils,
-  type ValidationResult 
+  confidenceUtils
 } from './confidenceScoringUtils'
 
 export interface AIExtractionConfig {
@@ -44,14 +50,15 @@ export interface AIExtractionOptions {
  */
 export class AIExtractionEngine {
   private geminiClient: GeminiAPIClient
-  private pdfProcessor: PDFProcessor
+  private pdfProcessor: PDFProcessor | any
   private confidenceScorer: ConfidenceScorer
   private validator: QuestionValidator
   private config: Required<AIExtractionConfig>
+  private initialized: boolean = false
 
   constructor(config: AIExtractionConfig) {
     this.config = {
-      geminiModel: 'gemini-1.5-flash',
+      geminiModel: 'gemini-2.5-flash',
       maxRetries: 3,
       confidenceThreshold: 2.5,
       enableDiagramDetection: true,
@@ -65,9 +72,18 @@ export class AIExtractionEngine {
       maxRetries: this.config.maxRetries
     })
 
-    this.pdfProcessor = createPDFProcessor()
     this.confidenceScorer = createConfidenceScorer()
     this.validator = createQuestionValidator()
+  }
+
+  /**
+   * Initialize the PDF processor (async)
+   */
+  private async initializePDFProcessor(): Promise<void> {
+    if (!this.initialized) {
+      this.pdfProcessor = await createPDFProcessor()
+      this.initialized = true
+    }
   }
 
   /**
@@ -89,7 +105,11 @@ export class AIExtractionEngine {
     }
 
     try {
-      reportProgress('initializing', 0, 'Initializing extraction process...')
+      // Initialize PDF processor first
+      reportProgress('initializing', 5, 'Initializing PDF processor...')
+      await this.initializePDFProcessor()
+
+      reportProgress('initializing', 10, 'Validating PDF file...')
 
       // Validate PDF
       if (!pdfUtils.validatePDF(pdfBuffer)) {
@@ -171,7 +191,9 @@ export class AIExtractionEngine {
       throw error
     } finally {
       // Clean up PDF processor
-      this.pdfProcessor.dispose()
+      if (this.pdfProcessor && typeof this.pdfProcessor.dispose === 'function') {
+        this.pdfProcessor.dispose()
+      }
     }
   }
 

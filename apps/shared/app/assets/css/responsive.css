@@ -1,0 +1,572 @@
+/**
+ * Responsive Design Styles for Advanced Diagram Detection System
+ * Provides comprehensive responsive layouts and breakpoint management
+ */
+
+/* CSS Custom Properties for Responsive Design */
+:root {
+  --viewport-width: 100vw;
+  --viewport-height: 100vh;
+  --current-breakpoint: 'md';
+  --columns: 3;
+  --gutters: 24px;
+  --margins: 24px;
+  --font-size-base: 16px;
+  --font-size-scale: 1;
+  
+  /* Fluid Typography */
+  --font-size-xs: clamp(0.75rem, 0.75rem + 0.5vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.875rem + 0.5vw, 1rem);
+  --font-size-base: clamp(1rem, 1rem + 0.5vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1.125rem + 0.5vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.25rem + 0.5vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.5rem + 1vw, 2rem);
+  --font-size-3xl: clamp(2rem, 2rem + 1vw, 2.5rem);
+  --font-size-4xl: clamp(2.5rem, 2.5rem + 1.5vw, 3rem);
+  --font-size-5xl: clamp(3rem, 3rem + 2vw, 4rem);
+}
+
+/* Base Responsive Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+/* Container Styles */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--margins);
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 var(--margins);
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gutters);
+  width: 100%;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--gutters);
+}
+
+.grid-item {
+  min-width: 0; /* Prevent grid blowout */
+}
+
+/* Flexbox Utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-stretch {
+  align-items: stretch;
+}
+
+/* Responsive Images */
+.responsive-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.responsive-image.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.responsive-image.contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Diagram Container Responsive Styles */
+.diagram-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.diagram-container.mobile-layout {
+  margin-bottom: 16px;
+}
+
+.diagram-container.desktop-layout {
+  margin-bottom: 24px;
+}
+
+.diagram-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  gap: var(--gutters);
+  padding: var(--gutters);
+}
+
+/* Page Viewer Responsive Styles */
+.page-viewer {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.page-viewer img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Question Panel Responsive Styles */
+.question-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-primary, #ffffff);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.question-panel .question-text {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.question-panel .options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Review Interface Responsive Styles */
+.review-interface {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.review-interface .sidebar {
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.review-interface .main-content {
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Coordinate Editor Responsive Styles */
+.coordinate-editor {
+  position: relative;
+  width: 100%;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.coordinate-editor canvas {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  cursor: crosshair;
+}
+
+.coordinate-editor .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.coordinate-editor .controls button {
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  background: var(--bg-primary, #ffffff);
+  color: var(--text-primary, #000000);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.coordinate-editor .controls button:hover,
+.coordinate-editor .controls button:focus {
+  background: var(--focus-color, #0066cc);
+  color: white;
+  border-color: var(--focus-color, #0066cc);
+}
+
+/* Breakpoint-Specific Styles */
+
+/* Extra Small (xs) - Mobile Portrait */
+.bp-xs {
+  --columns: 1;
+  --gutters: 16px;
+  --margins: 16px;
+}
+
+.bp-xs .review-interface {
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.bp-xs .coordinate-editor .controls {
+  flex-direction: column;
+}
+
+.bp-xs .coordinate-editor .controls button {
+  width: 100%;
+}
+
+.bp-xs .question-panel {
+  padding: 12px;
+}
+
+.bp-xs .diagram-container {
+  margin-bottom: 12px;
+}
+
+/* Small (sm) - Mobile Landscape / Small Tablet */
+.bp-sm {
+  --columns: 2;
+  --gutters: 20px;
+  --margins: 20px;
+}
+
+.bp-sm .review-interface {
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.bp-sm .coordinate-editor .controls {
+  justify-content: flex-start;
+}
+
+/* Medium (md) - Tablet */
+.bp-md {
+  --columns: 3;
+  --gutters: 24px;
+  --margins: 24px;
+}
+
+.bp-md .review-interface {
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+}
+
+/* Large (lg) - Desktop */
+.bp-lg {
+  --columns: 4;
+  --gutters: 28px;
+  --margins: 28px;
+}
+
+.bp-lg .review-interface {
+  grid-template-columns: 350px 1fr;
+  gap: 28px;
+}
+
+/* Extra Large (xl) - Large Desktop */
+.bp-xl {
+  --columns: 5;
+  --gutters: 32px;
+  --margins: 32px;
+}
+
+.bp-xl .review-interface {
+  grid-template-columns: 400px 1fr;
+  gap: 32px;
+}
+
+/* Extra Extra Large (xxl) - Very Large Desktop */
+.bp-xxl {
+  --columns: 6;
+  --gutters: 36px;
+  --margins: 36px;
+}
+
+.bp-xxl .review-interface {
+  grid-template-columns: 450px 1fr;
+  gap: 36px;
+}
+
+/* Orientation-Specific Styles */
+.portrait .diagram-container {
+  max-height: 70vh;
+}
+
+.landscape .diagram-container {
+  max-height: 60vh;
+}
+
+.portrait .page-viewer {
+  max-height: 80vh;
+}
+
+.landscape .page-viewer {
+  max-height: 70vh;
+}
+
+/* Touch Device Optimizations */
+.touch-support .coordinate-editor canvas {
+  cursor: pointer;
+}
+
+.touch-support .diagram-overlay {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-support .coordinate-editor .controls button {
+  min-height: 44px;
+  padding: 12px 16px;
+}
+
+/* Container Query Styles */
+.diagram-container[data-container-query*="min-width: 300px"] {
+  .diagram-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.diagram-container[data-container-query*="min-width: 600px"] {
+  .diagram-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.diagram-container[data-container-query*="min-width: 900px"] {
+  .diagram-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Size-based Classes */
+.size-xs {
+  font-size: var(--font-size-xs);
+}
+
+.size-sm {
+  font-size: var(--font-size-sm);
+}
+
+.size-md {
+  font-size: var(--font-size-base);
+}
+
+.size-lg {
+  font-size: var(--font-size-lg);
+}
+
+.size-xl {
+  font-size: var(--font-size-xl);
+}
+
+/* Utility Classes */
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+.max-h-full {
+  max-height: 100%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+/* Spacing Utilities */
+.p-0 { padding: 0; }
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.p-5 { padding: 20px; }
+.p-6 { padding: 24px; }
+
+.m-0 { margin: 0; }
+.m-1 { margin: 4px; }
+.m-2 { margin: 8px; }
+.m-3 { margin: 12px; }
+.m-4 { margin: 16px; }
+.m-5 { margin: 20px; }
+.m-6 { margin: 24px; }
+
+/* Responsive Spacing */
+@media (max-width: 575px) {
+  .p-responsive { padding: 12px; }
+  .m-responsive { margin: 8px; }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .p-responsive { padding: 16px; }
+  .m-responsive { margin: 12px; }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .p-responsive { padding: 20px; }
+  .m-responsive { margin: 16px; }
+}
+
+@media (min-width: 992px) {
+  .p-responsive { padding: 24px; }
+  .m-responsive { margin: 20px; }
+}
+
+/* Print Styles */
+@media print {
+  .review-interface {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .coordinate-editor .controls {
+    display: none;
+  }
+  
+  .diagram-container {
+    break-inside: avoid;
+    margin-bottom: 16px;
+  }
+  
+  .page-viewer {
+    max-height: none;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .coordinate-editor canvas {
+    transition: none;
+  }
+  
+  .coordinate-editor .controls button {
+    transition: none;
+  }
+  
+  .diagram-overlay {
+    transition: none;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .diagram-container {
+    border-width: 2px;
+  }
+  
+  .coordinate-editor canvas {
+    border-width: 2px;
+  }
+  
+  .coordinate-editor .controls button {
+    border-width: 2px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .page-viewer {
+    background: #2a2a2a;
+  }
+  
+  .coordinate-editor canvas {
+    background: #1a1a1a;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+/* Responsive Animation Control */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .slide-in {
+    animation: none;
+  }
+}
