@@ -142,7 +142,7 @@
         <nav class="flex items-center">
           <AppThemeToggle />
           <NuxtLink
-            to="https://github.com/TheMoonVyy/rankify"
+            to="https://github.com/namandhakad712/rankify"
             target="_blank"
             rel="noopener noreferrer"
             class="ml-4 w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground"

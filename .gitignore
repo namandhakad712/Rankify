@@ -39,6 +39,7 @@ logs
 
 # AI coder and assistant files
 .qwen
+.gemini
 QWEN.md
 .kiro
 .ai/
@@ -60,3 +61,4 @@ kiro-*.json
 
 # Others
 .DS_Store
+temp.md

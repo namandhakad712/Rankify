@@ -6,16 +6,24 @@
 import { getFeatureFlags } from '#layers/shared/app/composables/useFeatureFlags'
 
 export default defineNuxtRouteMiddleware((to) => {
+  console.log('AI Features middleware triggered for path:', to.path)
+
   const featureFlags = getFeatureFlags()
-  
+
+  // Initialize feature flags if not already done
+  if (!featureFlags.featureFlags.value || featureFlags.featureFlags.value.length === 0) {
+    console.log('Initializing feature flags in middleware')
+    featureFlags.initialize()
+  }
+
+  console.log('Available feature flags:', featureFlags.getEnabledFlags())
+  console.log('AI extraction enabled:', featureFlags.isEnabled('ai_extraction'))
+
   // Check AI extraction routes
   if (to.path === '/ai-extractor') {
     if (!featureFlags.isEnabled('ai_extraction')) {
-      console.warn('AI extraction feature is disabled')
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'AI extraction feature is not available'
-      })
+      console.warn('AI extraction feature is disabled, redirecting to home')
+      return navigateTo('/')
     }
   }
   

@@ -241,7 +241,7 @@ const computedTestName = computed(() => {
     return ''
   }
 
-  return 'Demo Mock Test'
+  return 'No Test Selected'
 })
 
 useHead({
@@ -896,7 +896,6 @@ function generateTestResults(loadToTestResultsOutputData: boolean = true) {
 
 async function loadTestOutputData(
   id: number | null = null,
-  fallbackToDemo: boolean = true,
   verifyId: boolean = true,
 ) {
   let data: TestInterfaceOrResultJsonOutput | null = null
@@ -923,15 +922,6 @@ async function loadTestOutputData(
     useErrorToast('Error loading test data from db:', err)
   }
 
-  // either there is no data in db or there was an error
-  // so load demo data
-  if (!data && fallbackToDemo) {
-    const demoData = await import('#layers/shared/app/assets/json/results_demo_data.json').then(m => m.default)
-    if (demoData) {
-      data = demoData as unknown as TestResultJsonOutput
-    }
-  }
-
   testNotes.value = testNotesData
 
   if (data) {
@@ -943,7 +933,7 @@ async function loadTestOutputData(
 }
 
 async function myTestsPanelViewOrGenerateHandler(id: number, btnType: 'generate' | 'view') {
-  const { status } = await loadTestOutputData(id, false, false)
+  const { status } = await loadTestOutputData(id, false)
   if (status) {
     if (btnType === 'view' && testOutputData.value?.generatedBy === 'testResultsPage') {
       testResultJsonData.value = testOutputData.value as TestResultJsonOutput
@@ -956,6 +946,8 @@ async function myTestsPanelViewOrGenerateHandler(id: number, btnType: 'generate'
     if (data) {
       await db.replaceTestOutputDataAndResultOverview(id, utilCloneJson(data))
     }
+  } else {
+    useErrorToast('No test data found', 'Unable to load test data for the selected test.')
   }
 }
 

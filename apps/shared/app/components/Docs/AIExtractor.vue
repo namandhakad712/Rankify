@@ -8,7 +8,7 @@
       <h2 class="text-lg font-semibold my-4">
         Upload your PDF and let AI automatically extract questions with confidence scoring
       </h2>
-      
+
       <!-- Info Accordion -->
       <UiAccordion
         type="multiple"
@@ -59,12 +59,16 @@
       <!-- Left Panel - Configuration -->
       <div class="lg:col-span-1">
         <UiCard class="p-6">
-          <h3 class="text-lg font-semibold mb-4">Configuration</h3>
-          
+          <h3 class="text-lg font-semibold mb-4">
+            Configuration
+          </h3>
+
           <!-- API Key Input -->
           <div class="space-y-4">
             <div>
-              <UiLabel for="api-key">Gemini API Key</UiLabel>
+              <UiLabel for="api-key">
+                Gemini API Key
+              </UiLabel>
               <UiInput
                 id="api-key"
                 v-model="config.apiKey"
@@ -74,8 +78,12 @@
                 class="mt-1"
               />
               <p class="text-sm text-muted-foreground mt-1">
-                Get your API key from 
-                <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-500 underline">
+                Get your API key from
+                <a
+                  href="https://makersuite.google.com/app/apikey"
+                  target="_blank"
+                  class="text-blue-500 underline"
+                >
                   Google AI Studio
                 </a>
               </p>
@@ -83,21 +91,32 @@
 
             <!-- Model Selection -->
             <div>
-              <UiLabel for="model">AI Model</UiLabel>
-              <UiSelect v-model="config.model" :disabled="isProcessing">
+              <UiLabel for="model">
+                AI Model
+              </UiLabel>
+              <UiSelect
+                v-model="config.model"
+                :disabled="isProcessing"
+              >
                 <UiSelectTrigger>
                   <UiSelectValue placeholder="Select model" />
                 </UiSelectTrigger>
                 <UiSelectContent>
-                  <UiSelectItem value="gemini-1.5-flash">Gemini 1.5 Flash (Faster)</UiSelectItem>
-                  <UiSelectItem value="gemini-1.5-pro">Gemini 1.5 Pro (Better Quality)</UiSelectItem>
+                  <UiSelectItem value="gemini-1.5-flash">
+                    Gemini 1.5 Flash (Faster)
+                  </UiSelectItem>
+                  <UiSelectItem value="gemini-1.5-pro">
+                    Gemini 1.5 Pro (Better Quality)
+                  </UiSelectItem>
                 </UiSelectContent>
               </UiSelect>
             </div>
 
             <!-- Confidence Threshold -->
             <div>
-              <UiLabel for="threshold">Confidence Threshold</UiLabel>
+              <UiLabel for="threshold">
+                Confidence Threshold
+              </UiLabel>
               <div class="flex items-center space-x-2 mt-1">
                 <span class="text-sm">1</span>
                 <input
@@ -109,7 +128,7 @@
                   step="0.5"
                   class="flex-1"
                   :disabled="isProcessing"
-                />
+                >
                 <span class="text-sm">5</span>
               </div>
               <p class="text-sm text-muted-foreground mt-1">
@@ -125,7 +144,9 @@
                   v-model:checked="config.enableDiagramDetection"
                   :disabled="isProcessing"
                 />
-                <UiLabel for="diagram-detection">Enable diagram detection</UiLabel>
+                <UiLabel for="diagram-detection">
+                  Enable diagram detection
+                </UiLabel>
               </div>
               <div class="flex items-center space-x-2">
                 <UiCheckbox
@@ -133,7 +154,9 @@
                   v-model:checked="config.enableCache"
                   :disabled="isProcessing"
                 />
-                <UiLabel for="enable-cache">Enable caching</UiLabel>
+                <UiLabel for="enable-cache">
+                  Enable caching
+                </UiLabel>
               </div>
             </div>
           </div>
@@ -151,7 +174,10 @@
                 @upload="handleFileUpload"
               />
             </div>
-            <p v-if="selectedFile" class="text-sm text-muted-foreground mt-2">
+            <p
+              v-if="selectedFile"
+              class="text-sm text-muted-foreground mt-2"
+            >
               Selected: {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
             </p>
           </div>
@@ -163,15 +189,28 @@
             class="w-full mt-6"
             @click="startExtraction"
           >
-            <Icon name="line-md:uploading-loop" v-if="isProcessing" class="mr-2" />
-            <Icon name="line-md:document-add" v-else class="mr-2" />
+            <Icon
+              v-if="isProcessing"
+              name="line-md:uploading-loop"
+              class="mr-2"
+            />
+            <Icon
+              v-else
+              name="line-md:document-add"
+              class="mr-2"
+            />
             {{ isProcessing ? 'Extracting...' : 'Extract Questions' }}
           </UiButton>
         </UiCard>
 
         <!-- Statistics Card -->
-        <UiCard v-if="extractionStats" class="p-4 mt-4">
-          <h4 class="font-semibold mb-2">Extraction Statistics</h4>
+        <UiCard
+          v-if="extractionStats"
+          class="p-4 mt-4"
+        >
+          <h4 class="font-semibold mb-2">
+            Extraction Statistics
+          </h4>
           <div class="space-y-1 text-sm">
             <div class="flex justify-between">
               <span>Total Extractions:</span>
@@ -196,17 +235,28 @@
       <!-- Right Panel - Results -->
       <div class="lg:col-span-2">
         <!-- Progress Section -->
-        <UiCard v-if="isProcessing || extractionProgress" class="p-6 mb-6">
-          <h3 class="text-lg font-semibold mb-4">Extraction Progress</h3>
-          
-          <div v-if="extractionProgress" class="space-y-4">
+        <UiCard
+          v-if="isProcessing || extractionProgress"
+          class="p-6 mb-6"
+        >
+          <h3 class="text-lg font-semibold mb-4">
+            Extraction Progress
+          </h3>
+
+          <div
+            v-if="extractionProgress"
+            class="space-y-4"
+          >
             <!-- Progress Bar -->
             <div>
               <div class="flex justify-between text-sm mb-2">
                 <span class="capitalize">{{ extractionProgress.stage.replace('_', ' ') }}</span>
                 <span>{{ extractionProgress.progress }}%</span>
               </div>
-              <UiProgress :value="extractionProgress.progress" class="w-full" />
+              <UiProgress
+                :value="extractionProgress.progress"
+                class="w-full"
+              />
             </div>
 
             <!-- Current Message -->
@@ -221,9 +271,9 @@
                 :key="stage.key"
                 :class="[
                   'px-2 py-1 rounded-full',
-                  getStageStatus(stage.key) === 'completed' ? 'bg-green-100 text-green-800' :
-                  getStageStatus(stage.key) === 'current' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-600'
+                  getStageStatus(stage.key) === 'completed' ? 'bg-green-100 text-green-800'
+                  : getStageStatus(stage.key) === 'current' ? 'bg-blue-100 text-blue-800'
+                    : 'bg-gray-100 text-gray-600',
                 ]"
               >
                 {{ stage.label }}
@@ -233,25 +283,45 @@
         </UiCard>
 
         <!-- Results Section -->
-        <UiCard v-if="extractionResult" class="p-6">
+        <UiCard
+          v-if="extractionResult"
+          class="p-6"
+        >
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold">Extraction Results</h3>
+            <h3 class="text-lg font-semibold">
+              Extraction Results
+            </h3>
             <div class="flex space-x-2">
               <UiDropdownMenu>
                 <UiDropdownMenuTrigger as-child>
-                  <UiButton variant="outline" size="sm">
-                    <Icon name="line-md:download-outline" class="mr-2" />
+                  <UiButton
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Icon
+                      name="line-md:download-outline"
+                      class="mr-2"
+                    />
                     Export
-                    <Icon name="line-md:chevron-down" class="ml-2" />
+                    <Icon
+                      name="line-md:chevron-down"
+                      class="ml-2"
+                    />
                   </UiButton>
                 </UiDropdownMenuTrigger>
                 <UiDropdownMenuContent>
                   <UiDropdownMenuItem @click="exportResults('rankify')">
-                    <Icon name="line-md:document" class="mr-2" />
+                    <Icon
+                      name="line-md:document"
+                      class="mr-2"
+                    />
                     Rankify Format (Recommended)
                   </UiDropdownMenuItem>
                   <UiDropdownMenuItem @click="exportResults('ai')">
-                    <Icon name="line-md:code" class="mr-2" />
+                    <Icon
+                      name="line-md:code"
+                      class="mr-2"
+                    />
                     Raw AI Format
                   </UiDropdownMenuItem>
                 </UiDropdownMenuContent>
@@ -259,10 +329,37 @@
               <UiButton
                 variant="outline"
                 size="sm"
-                @click="openReviewInterface"
+                :disabled="!extractionResult"
+                @click="proceedToReview"
               >
-                <Icon name="line-md:edit" class="mr-2" />
+                <Icon
+                  name="line-md:edit"
+                  class="mr-2"
+                />
                 Review & Edit
+              </UiButton>
+              <UiButton
+                size="sm"
+                :disabled="!extractionResult"
+                @click="proceedToTest"
+              >
+                <Icon
+                  name="line-md:play"
+                  class="mr-2"
+                />
+                Start Test
+              </UiButton>
+              <UiButton
+                variant="outline"
+                size="sm"
+                :disabled="!extractionResult"
+                @click="generateAIAnswerKey"
+              >
+                <Icon
+                  name="line-md:magic"
+                  class="mr-2"
+                />
+                AI Answer Key
               </UiButton>
             </div>
           </div>
@@ -270,35 +367,56 @@
           <!-- Summary Stats -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="text-center p-3 bg-muted rounded-lg">
-              <div class="text-2xl font-bold text-blue-600">{{ extractionResult.questions.length }}</div>
-              <div class="text-sm text-muted-foreground">Questions</div>
+              <div class="text-2xl font-bold text-blue-600">
+                {{ extractionResult.questions.length }}
+              </div>
+              <div class="text-sm text-muted-foreground">
+                Questions
+              </div>
             </div>
             <div class="text-center p-3 bg-muted rounded-lg">
-              <div class="text-2xl font-bold" :style="{ color: getConfidenceColor(extractionResult.confidence) }">
+              <div
+                class="text-2xl font-bold"
+                :style="{ color: getConfidenceColor(extractionResult.confidence) }"
+              >
                 {{ extractionResult.confidence }}/5
               </div>
-              <div class="text-sm text-muted-foreground">Confidence</div>
+              <div class="text-sm text-muted-foreground">
+                Confidence
+              </div>
             </div>
             <div class="text-center p-3 bg-muted rounded-lg">
               <div class="text-2xl font-bold text-orange-600">
                 {{ extractionResult.questions.filter(q => q.hasDiagram).length }}
               </div>
-              <div class="text-sm text-muted-foreground">Diagrams</div>
+              <div class="text-sm text-muted-foreground">
+                Diagrams
+              </div>
             </div>
             <div class="text-center p-3 bg-muted rounded-lg">
               <div class="text-2xl font-bold text-red-600">
                 {{ extractionResult.questions.filter(q => requiresManualReview(q)).length }}
               </div>
-              <div class="text-sm text-muted-foreground">Need Review</div>
+              <div class="text-sm text-muted-foreground">
+                Need Review
+              </div>
             </div>
           </div>
 
           <!-- Confidence Distribution -->
           <div class="mb-6">
-            <h4 class="font-semibold mb-2">Confidence Distribution</h4>
+            <h4 class="font-semibold mb-2">
+              Confidence Distribution
+            </h4>
             <div class="space-y-2">
-              <div v-for="level in confidenceLevels" :key="level.range" class="flex items-center">
-                <div class="w-24 text-sm">{{ level.range }}</div>
+              <div
+                v-for="level in confidenceLevels"
+                :key="level.range"
+                class="flex items-center"
+              >
+                <div class="w-24 text-sm">
+                  {{ level.range }}
+                </div>
                 <div class="flex-1 bg-gray-200 rounded-full h-2 mx-2">
                   <div
                     :class="level.color"
@@ -306,17 +424,21 @@
                     :style="{ width: `${level.percentage}%` }"
                   />
                 </div>
-                <div class="w-12 text-sm text-right">{{ level.count }}</div>
+                <div class="w-12 text-sm text-right">
+                  {{ level.count }}
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Questions Preview -->
           <div>
-            <h4 class="font-semibold mb-4">Questions Preview</h4>
+            <h4 class="font-semibold mb-4">
+              Questions Preview
+            </h4>
             <div class="space-y-3 max-h-96 overflow-y-auto">
               <div
-                v-for="(question, index) in extractionResult.questions.slice(0, 10)"
+                v-for="question in extractionResult.questions.slice(0, 10)"
                 :key="question.id"
                 class="border rounded-lg p-3 hover:bg-muted/50 transition-colors"
               >
@@ -331,16 +453,26 @@
                         variant="outline"
                         class="text-orange-600 border-orange-600"
                       >
-                        <Icon name="line-md:image" class="mr-1" />
+                        <Icon
+                          name="line-md:image"
+                          class="mr-1"
+                        />
                         Diagram
                       </UiBadge>
                       <div class="text-xs text-muted-foreground">
                         {{ question.subject }} • {{ question.section }} • Q{{ question.questionNumber }}
                       </div>
                     </div>
-                    <p class="text-sm line-clamp-2">{{ question.text }}</p>
-                    <div v-if="question.options.length > 0" class="mt-2">
-                      <div class="text-xs text-muted-foreground mb-1">Options:</div>
+                    <p class="text-sm line-clamp-2">
+                      {{ question.text }}
+                    </p>
+                    <div
+                      v-if="question.options.length > 0"
+                      class="mt-2"
+                    >
+                      <div class="text-xs text-muted-foreground mb-1">
+                        Options:
+                      </div>
                       <div class="flex flex-wrap gap-1">
                         <span
                           v-for="(option, optIndex) in question.options.slice(0, 4)"
@@ -349,7 +481,10 @@
                         >
                           {{ String.fromCharCode(65 + optIndex) }}) {{ option.substring(0, 20) }}{{ option.length > 20 ? '...' : '' }}
                         </span>
-                        <span v-if="question.options.length > 4" class="text-xs text-muted-foreground">
+                        <span
+                          v-if="question.options.length > 4"
+                          class="text-xs text-muted-foreground"
+                        >
                           +{{ question.options.length - 4 }} more
                         </span>
                       </div>
@@ -368,9 +503,16 @@
                   </div>
                 </div>
               </div>
-              
-              <div v-if="extractionResult.questions.length > 10" class="text-center py-2">
-                <UiButton variant="outline" size="sm" @click="showAllQuestions = !showAllQuestions">
+
+              <div
+                v-if="extractionResult.questions.length > 10"
+                class="text-center py-2"
+              >
+                <UiButton
+                  variant="outline"
+                  size="sm"
+                  @click="showAllQuestions = !showAllQuestions"
+                >
                   {{ showAllQuestions ? 'Show Less' : `Show All ${extractionResult.questions.length} Questions` }}
                 </UiButton>
               </div>
@@ -379,18 +521,37 @@
         </UiCard>
 
         <!-- Error Section -->
-        <UiCard v-if="extractionError" class="p-6 border-red-200">
+        <UiCard
+          v-if="extractionError"
+          class="p-6 border-red-200"
+        >
           <div class="flex items-center space-x-2 mb-4">
-            <Icon name="line-md:alert" class="text-red-500" />
-            <h3 class="text-lg font-semibold text-red-700">Extraction Failed</h3>
+            <Icon
+              name="line-md:alert"
+              class="text-red-500"
+            />
+            <h3 class="text-lg font-semibold text-red-700">
+              Extraction Failed
+            </h3>
           </div>
-          <p class="text-red-600 mb-4">{{ extractionError }}</p>
+          <p class="text-red-600 mb-4">
+            {{ extractionError }}
+          </p>
           <div class="flex space-x-2">
-            <UiButton variant="outline" @click="retryExtraction">
-              <Icon name="line-md:refresh" class="mr-2" />
+            <UiButton
+              variant="outline"
+              @click="retryExtraction"
+            >
+              <Icon
+                name="line-md:refresh"
+                class="mr-2"
+              />
               Retry
             </UiButton>
-            <UiButton variant="outline" @click="clearError">
+            <UiButton
+              variant="outline"
+              @click="clearError"
+            >
               Clear Error
             </UiButton>
           </div>
@@ -402,7 +563,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import AIExtractionEngine, { aiExtractionUtils, type AIExtractionProgress } from '#layers/shared/app/utils/aiExtractionUtils'
+import { aiExtractionUtils, type AIExtractionProgress } from '#layers/shared/app/utils/aiExtractionUtils'
 import { confidenceUtils } from '#layers/shared/app/utils/confidenceScoringUtils'
 import { aiJsonSchemaUtils } from '#layers/shared/app/utils/aiJsonSchemaUtils'
 import type { AIExtractionResult, AIExtractedQuestion } from '#layers/shared/app/utils/geminiAPIClient'
@@ -413,7 +574,7 @@ const config = ref({
   model: 'gemini-1.5-flash',
   confidenceThreshold: 2.5,
   enableDiagramDetection: true,
-  enableCache: true
+  enableCache: true,
 })
 
 const selectedFile = ref<File | null>(null)
@@ -421,7 +582,12 @@ const isProcessing = ref(false)
 const extractionProgress = ref<AIExtractionProgress | null>(null)
 const extractionResult = ref<AIExtractionResult | null>(null)
 const extractionError = ref<string | null>(null)
-const extractionStats = ref<any>(null)
+const extractionStats = ref<{
+  totalExtractions: number
+  totalQuestions: number
+  averageConfidence: number
+  storageUsed: number
+} | null>(null)
 const showAllQuestions = ref(false)
 
 // Progress stages for UI
@@ -431,7 +597,7 @@ const progressStages = [
   { key: 'extracting_questions', label: 'AI Extraction' },
   { key: 'validating', label: 'Validating' },
   { key: 'storing', label: 'Storing' },
-  { key: 'completed', label: 'Complete' }
+  { key: 'completed', label: 'Complete' },
 ]
 
 // Computed properties
@@ -445,19 +611,19 @@ const canStartExtraction = computed(() => {
 
 const confidenceLevels = computed(() => {
   if (!extractionResult.value) return []
-  
+
   const questions = extractionResult.value.questions
   const total = questions.length
-  
+
   const levels = [
     { range: '4.5-5.0', min: 4.5, max: 5.0, color: 'bg-green-500' },
     { range: '3.5-4.4', min: 3.5, max: 4.4, color: 'bg-blue-500' },
     { range: '2.5-3.4', min: 2.5, max: 3.4, color: 'bg-yellow-500' },
     { range: '1.5-2.4', min: 1.5, max: 2.4, color: 'bg-orange-500' },
-    { range: '1.0-1.4', min: 1.0, max: 1.4, color: 'bg-red-500' }
+    { range: '1.0-1.4', min: 1.0, max: 1.4, color: 'bg-red-500' },
   ]
-  
-  return levels.map(level => {
+
+  return levels.map((level) => {
     const count = questions.filter(q => q.confidence >= level.min && q.confidence <= level.max).length
     const percentage = total > 0 ? (count / total) * 100 : 0
     return { ...level, count, percentage }
@@ -491,23 +657,23 @@ const requiresManualReview = (question: AIExtractedQuestion): boolean => {
   return confidenceUtils.requiresManualReview(question)
 }
 
-const getQuestionTypeVariant = (type: string) => {
-  const variants = {
-    'MCQ': 'default',
-    'MSQ': 'secondary',
-    'NAT': 'outline',
-    'MSM': 'destructive',
-    'Diagram': 'warning'
+const getQuestionTypeVariant = (type: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warn' | 'info' => {
+  const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warn' | 'info'> = {
+    MCQ: 'default',
+    MSQ: 'secondary',
+    NAT: 'outline',
+    MSM: 'destructive',
+    Diagram: 'warn',
   }
   return variants[type] || 'default'
 }
 
 const getStageStatus = (stageKey: string): 'completed' | 'current' | 'pending' => {
   if (!extractionProgress.value) return 'pending'
-  
+
   const currentStageIndex = progressStages.findIndex(s => s.key === extractionProgress.value?.stage)
   const stageIndex = progressStages.findIndex(s => s.key === stageKey)
-  
+
   if (stageIndex < currentStageIndex) return 'completed'
   if (stageIndex === currentStageIndex) return 'current'
   return 'pending'
@@ -515,35 +681,37 @@ const getStageStatus = (stageKey: string): 'completed' | 'current' | 'pending' =
 
 const startExtraction = async () => {
   if (!canStartExtraction.value) return
-  
+
   isProcessing.value = true
   extractionError.value = null
   extractionProgress.value = null
-  
+
   try {
     const engine = aiExtractionUtils.createEngine(config.value.apiKey, {
       geminiModel: config.value.model,
       confidenceThreshold: config.value.confidenceThreshold,
       enableDiagramDetection: config.value.enableDiagramDetection,
-      maxFileSizeMB: 10
+      maxFileSizeMB: 10,
     })
-    
+
     const result = await engine.extractFromPDF(selectedFile.value!, selectedFile.value!.name, {
       enableCache: config.value.enableCache,
       onProgress: (progress) => {
         extractionProgress.value = progress
-      }
+      },
     })
-    
+
     extractionResult.value = result
-    
+
     // Load updated stats
     await loadExtractionStats()
-    
-  } catch (error: any) {
-    extractionError.value = error.message || 'An unknown error occurred'
+  }
+  catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+    extractionError.value = errorMessage
     console.error('Extraction failed:', error)
-  } finally {
+  }
+  finally {
     isProcessing.value = false
   }
 }
@@ -559,35 +727,37 @@ const clearError = () => {
 
 const exportResults = (format: 'ai' | 'rankify' = 'rankify') => {
   if (!extractionResult.value) return
-  
+
   let jsonString: string
   let filename: string
-  
+
   if (format === 'rankify') {
     // Convert to Rankify format
     const conversion = aiJsonSchemaUtils.convertAIToRankify(extractionResult.value, {
       includeAnswerKey: false,
       generateTestConfig: true,
       estimatedDuration: aiJsonSchemaUtils.estimateTestDuration(extractionResult.value.questions),
-      pdfFileHash: extractionResult.value.metadata.pdfMetadata.fileHash
+      pdfFileHash: extractionResult.value.metadata.pdfMetadata.fileHash,
     })
-    
+
     if (conversion.success && conversion.data) {
       jsonString = JSON.stringify(conversion.data, null, 2)
       filename = `rankify-test-${selectedFile.value?.name?.replace('.pdf', '') || 'result'}.json`
-    } else {
+    }
+    else {
       console.error('Conversion failed:', conversion.errors)
       return
     }
-  } else {
+  }
+  else {
     // Export raw AI format
     jsonString = aiExtractionUtils.exportToJSON(extractionResult.value)
     filename = `ai-extraction-${selectedFile.value?.name?.replace('.pdf', '') || 'result'}.json`
   }
-  
+
   const blob = new Blob([jsonString], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
-  
+
   const a = document.createElement('a')
   a.href = url
   a.download = filename
@@ -597,9 +767,97 @@ const exportResults = (format: 'ai' | 'rankify' = 'rankify') => {
   URL.revokeObjectURL(url)
 }
 
-const openReviewInterface = () => {
-  // TODO: Navigate to review interface with extracted data
-  console.log('Opening review interface with:', extractionResult.value)
+const proceedToReview = async () => {
+  if (!extractionResult.value) return
+
+  try {
+    // Store extraction results in localStorage for the review interface
+    const reviewData = {
+      questions: extractionResult.value.questions,
+      fileName: selectedFile.value?.name || 'Unknown PDF',
+      extractionMetadata: {
+        confidence: extractionResult.value.confidence,
+        processingTime: extractionResult.value.processingTime,
+        totalQuestions: extractionResult.value.questions.length,
+        timestamp: Date.now(),
+      },
+    }
+
+    localStorage.setItem('rankify-review-data', JSON.stringify(reviewData))
+
+    // Navigate to review interface
+    await navigateTo('/review-interface')
+  }
+  catch (error) {
+    console.error('Failed to proceed to review:', error)
+    // Fallback: try direct navigation
+    window.location.href = '/review-interface'
+  }
+}
+
+const proceedToTest = async () => {
+  if (!extractionResult.value) return
+
+  try {
+    // Convert AI results to Rankify test format
+    const conversion = aiJsonSchemaUtils.convertAIToRankify(extractionResult.value, {
+      includeAnswerKey: false,
+      generateTestConfig: true,
+      estimatedDuration: aiJsonSchemaUtils.estimateTestDuration(extractionResult.value.questions),
+      pdfFileHash: extractionResult.value.metadata.pdfMetadata.fileHash,
+    })
+
+    if (conversion.success && conversion.data) {
+      // Store test data for CBT interface
+      localStorage.setItem('rankify-test-data', JSON.stringify(conversion.data))
+
+      // Navigate to CBT interface
+      await navigateTo('/cbt/interface')
+    }
+    else {
+      console.error('Failed to convert AI results to test format:', conversion.errors)
+      // Show error message to user
+      extractionError.value = 'Failed to prepare test data. Please try reviewing the questions first.'
+    }
+  }
+  catch (error) {
+    console.error('Failed to proceed to test:', error)
+    extractionError.value = 'Failed to prepare test. Please try again or review questions first.'
+  }
+}
+
+const generateAIAnswerKey = async () => {
+  if (!extractionResult.value) return
+
+  try {
+    // Show loading state
+    extractionError.value = null
+
+    // For now, prepare the data for manual answer key generation
+    // In the future, this could use AI to pre-fill answers
+    const answerKeyData = {
+      questions: extractionResult.value.questions,
+      fileName: selectedFile.value?.name || 'Unknown PDF',
+      generatedBy: 'ai-assisted',
+      confidence: extractionResult.value.confidence,
+      metadata: {
+        totalQuestions: extractionResult.value.questions.length,
+        aiModel: config.value.model,
+        extractionConfidence: extractionResult.value.confidence,
+        generatedAt: Date.now(),
+      },
+    }
+
+    // Store for answer key generation page
+    localStorage.setItem('rankify-ai-answer-key-data', JSON.stringify(answerKeyData))
+
+    // Navigate to answer key generation page
+    await navigateTo('/cbt/generate-answer-key')
+  }
+  catch (error) {
+    console.error('Failed to prepare AI answer key data:', error)
+    extractionError.value = 'Failed to prepare answer key data. Please try manual generation instead.'
+  }
 }
 
 const loadExtractionStats = async () => {
@@ -608,7 +866,8 @@ const loadExtractionStats = async () => {
       const engine = aiExtractionUtils.createEngine(config.value.apiKey)
       extractionStats.value = await engine.getExtractionStats()
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.warn('Failed to load extraction stats:', error)
   }
 }

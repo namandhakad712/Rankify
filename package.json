@@ -4,8 +4,8 @@
   "description": "Turn PDF of questions into CBT (Computer-Based Test)",
   "license": "AGPL-3.0-or-later",
   "author": {
-    "name": "Hi",
-    "email": "felearn@zohomail.in"
+    "name": "Naman Dhakad",
+    "email": "namandhakad712@gmail.com"
   },
   "type": "module",
   "workspaces": [
@@ -17,5 +17,9 @@
     "generate:web": "pnpm --filter ./apps/web generate",
     "prepare:web": "pnpm --filter ./apps/web prepare"
   },
-  "version": "1.25.0"
+  "version": "1.25.0",
+  "dependencies": {
+    "lucide": "^0.545.0",
+    "lucide-vue-next": "0.544.0"
+  }
 }

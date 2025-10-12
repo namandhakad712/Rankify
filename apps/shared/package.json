@@ -4,13 +4,16 @@
   "description": "Turn PDF of questions into CBT (Computer-Based Test)",
   "license": "AGPL-3.0-or-later",
   "author": {
-    "name": "TheMoonVyy",
-    "email": "themoonvyy@gmail.com"
+    "name": "Naman Dhakad",
+    "email": "namandhakad712@gmail.com"
   },
   "type": "module",
   "main": "./nuxt.config.ts",
   "scripts": {
     "postinstall": "nuxt prepare",
     "prepare": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.69"
   }
 }

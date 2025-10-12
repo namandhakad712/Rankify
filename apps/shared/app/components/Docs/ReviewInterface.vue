@@ -4,22 +4,49 @@
     <div class="border-b bg-card p-4">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold">Review AI Extracted Questions</h1>
+          <h1 class="text-2xl font-bold">
+            Review AI Extracted Questions
+          </h1>
           <p class="text-muted-foreground">
-            Review and edit {{ totalQuestions }} questions extracted from {{ fileName }}
+            Review and edit {{ totalQuestions }} questions extracted from {{ fileNameRef }}
           </p>
         </div>
         <div class="flex items-center space-x-2">
-          <UiBadge :variant="getOverallConfidenceVariant()" class="text-sm">
+          <UiBadge
+            :variant="getOverallConfidenceVariant()"
+            class="text-sm"
+          >
             Overall Confidence: {{ overallConfidence }}/5
           </UiBadge>
-          <UiButton variant="outline" @click="showValidationPanel = !showValidationPanel">
-            <Icon name="line-md:check-list-3" class="mr-2" />
+          <UiButton
+            variant="outline"
+            @click="showValidationPanel = !showValidationPanel"
+          >
+            <Icon
+              name="line-md:check-list-3"
+              class="mr-2"
+            />
             Validation
           </UiButton>
-          <UiButton @click="saveChanges" :disabled="!hasChanges">
-            <Icon name="line-md:confirm" class="mr-2" />
+          <UiButton
+            :disabled="!hasChanges"
+            @click="saveChanges"
+          >
+            <Icon
+              name="line-md:confirm"
+              class="mr-2"
+            />
             Save Changes
+          </UiButton>
+          <UiButton
+            variant="outline"
+            @click="saveTestForLater"
+          >
+            <Icon
+              name="line-md:download"
+              class="mr-2"
+            />
+            Save Test
           </UiButton>
         </div>
       </div>
@@ -31,34 +58,60 @@
         <!-- Filters -->
         <div class="p-4 border-b space-y-3">
           <div>
-            <UiLabel class="text-sm font-medium">Filter by Confidence</UiLabel>
+            <UiLabel class="text-sm font-medium">
+              Filter by Confidence
+            </UiLabel>
             <UiSelect v-model="confidenceFilter">
               <UiSelectTrigger class="mt-1">
                 <UiSelectValue placeholder="All questions" />
               </UiSelectTrigger>
               <UiSelectContent>
-                <UiSelectItem value="all">All Questions</UiSelectItem>
-                <UiSelectItem value="low">Low Confidence (≤2.5)</UiSelectItem>
-                <UiSelectItem value="medium">Medium Confidence (2.5-4)</UiSelectItem>
-                <UiSelectItem value="high">High Confidence (≥4)</UiSelectItem>
-                <UiSelectItem value="needs-review">Needs Review</UiSelectItem>
+                <UiSelectItem value="all">
+                  All Questions
+                </UiSelectItem>
+                <UiSelectItem value="low">
+                  Low Confidence (≤2.5)
+                </UiSelectItem>
+                <UiSelectItem value="medium">
+                  Medium Confidence (2.5-4)
+                </UiSelectItem>
+                <UiSelectItem value="high">
+                  High Confidence (≥4)
+                </UiSelectItem>
+                <UiSelectItem value="needs-review">
+                  Needs Review
+                </UiSelectItem>
               </UiSelectContent>
             </UiSelect>
           </div>
 
           <div>
-            <UiLabel class="text-sm font-medium">Filter by Type</UiLabel>
+            <UiLabel class="text-sm font-medium">
+              Filter by Type
+            </UiLabel>
             <UiSelect v-model="typeFilter">
               <UiSelectTrigger class="mt-1">
                 <UiSelectValue placeholder="All types" />
               </UiSelectTrigger>
               <UiSelectContent>
-                <UiSelectItem value="all">All Types</UiSelectItem>
-                <UiSelectItem value="MCQ">MCQ</UiSelectItem>
-                <UiSelectItem value="MSQ">MSQ</UiSelectItem>
-                <UiSelectItem value="NAT">NAT</UiSelectItem>
-                <UiSelectItem value="MSM">MSM</UiSelectItem>
-                <UiSelectItem value="Diagram">Diagram</UiSelectItem>
+                <UiSelectItem value="all">
+                  All Types
+                </UiSelectItem>
+                <UiSelectItem value="MCQ">
+                  MCQ
+                </UiSelectItem>
+                <UiSelectItem value="MSQ">
+                  MSQ
+                </UiSelectItem>
+                <UiSelectItem value="NAT">
+                  NAT
+                </UiSelectItem>
+                <UiSelectItem value="MSM">
+                  MSM
+                </UiSelectItem>
+                <UiSelectItem value="Diagram">
+                  Diagram
+                </UiSelectItem>
               </UiSelectContent>
             </UiSelect>
           </div>
@@ -68,7 +121,12 @@
               id="show-diagrams"
               v-model:checked="showDiagramsOnly"
             />
-            <UiLabel for="show-diagrams" class="text-sm">Show diagrams only</UiLabel>
+            <UiLabel
+              for="show-diagrams"
+              class="text-sm"
+            >
+              Show diagrams only
+            </UiLabel>
           </div>
         </div>
 
@@ -83,14 +141,17 @@
                 selectedQuestionId === question.id
                   ? 'bg-primary/10 border-primary'
                   : 'bg-background hover:bg-muted border-border',
-                getQuestionHighlightClass(question)
+                getQuestionHighlightClass(question),
               ]"
               @click="selectQuestion(question.id)"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2 mb-1">
-                    <UiBadge :variant="getQuestionTypeVariant(question.type)" class="text-xs">
+                    <UiBadge
+                      :variant="getQuestionTypeVariant(question.type)"
+                      class="text-xs"
+                    >
                       {{ question.type }}
                     </UiBadge>
                     <UiBadge
@@ -98,7 +159,10 @@
                       variant="outline"
                       class="text-xs text-orange-600 border-orange-600"
                     >
-                      <Icon name="line-md:image" class="mr-1 h-3 w-3" />
+                      <Icon
+                        name="line-md:image"
+                        class="mr-1 h-3 w-3"
+                      />
                       Diagram
                     </UiBadge>
                     <span class="text-xs text-muted-foreground">
@@ -149,7 +213,10 @@
       <div class="flex-1 flex">
         <!-- Question Editor -->
         <div class="flex-1 flex flex-col">
-          <div v-if="selectedQuestion" class="flex-1 overflow-y-auto">
+          <div
+            v-if="selectedQuestion"
+            class="flex-1 overflow-y-auto"
+          >
             <!-- Question Header -->
             <div class="p-6 border-b bg-card">
               <div class="flex items-center justify-between mb-4">
@@ -174,7 +241,9 @@
 
               <!-- Confidence Adjustment -->
               <div class="mb-4">
-                <UiLabel class="text-sm font-medium mb-2 block">Adjust Confidence Score</UiLabel>
+                <UiLabel class="text-sm font-medium mb-2 block">
+                  Adjust Confidence Score
+                </UiLabel>
                 <div class="flex items-center space-x-4">
                   <input
                     v-model="selectedQuestion.confidence"
@@ -184,7 +253,7 @@
                     step="0.1"
                     class="flex-1"
                     @input="markAsChanged"
-                  />
+                  >
                   <span class="text-sm font-medium w-12">{{ selectedQuestion.confidence }}</span>
                 </div>
                 <p class="text-xs text-muted-foreground mt-1">
@@ -198,7 +267,9 @@
               <!-- Basic Information -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <UiLabel for="subject">Subject</UiLabel>
+                  <UiLabel for="subject">
+                    Subject
+                  </UiLabel>
                   <UiInput
                     id="subject"
                     v-model="selectedQuestion.subject"
@@ -207,7 +278,9 @@
                   />
                 </div>
                 <div>
-                  <UiLabel for="section">Section</UiLabel>
+                  <UiLabel for="section">
+                    Section
+                  </UiLabel>
                   <UiInput
                     id="section"
                     v-model="selectedQuestion.section"
@@ -216,7 +289,9 @@
                   />
                 </div>
                 <div>
-                  <UiLabel for="question-number">Question Number</UiLabel>
+                  <UiLabel for="question-number">
+                    Question Number
+                  </UiLabel>
                   <UiInput
                     id="question-number"
                     v-model.number="selectedQuestion.questionNumber"
@@ -230,17 +305,32 @@
               <!-- Question Type and Diagram Toggle -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <UiLabel for="question-type">Question Type</UiLabel>
-                  <UiSelect v-model="selectedQuestion.type" @update:model-value="markAsChanged">
+                  <UiLabel for="question-type">
+                    Question Type
+                  </UiLabel>
+                  <UiSelect
+                    v-model="selectedQuestion.type"
+                    @update:model-value="markAsChanged"
+                  >
                     <UiSelectTrigger>
                       <UiSelectValue />
                     </UiSelectTrigger>
                     <UiSelectContent>
-                      <UiSelectItem value="MCQ">MCQ - Multiple Choice</UiSelectItem>
-                      <UiSelectItem value="MSQ">MSQ - Multiple Select</UiSelectItem>
-                      <UiSelectItem value="NAT">NAT - Numerical Answer</UiSelectItem>
-                      <UiSelectItem value="MSM">MSM - Matrix Match</UiSelectItem>
-                      <UiSelectItem value="Diagram">Diagram Question</UiSelectItem>
+                      <UiSelectItem value="MCQ">
+                        MCQ - Multiple Choice
+                      </UiSelectItem>
+                      <UiSelectItem value="MSQ">
+                        MSQ - Multiple Select
+                      </UiSelectItem>
+                      <UiSelectItem value="NAT">
+                        NAT - Numerical Answer
+                      </UiSelectItem>
+                      <UiSelectItem value="MSM">
+                        MSM - Matrix Match
+                      </UiSelectItem>
+                      <UiSelectItem value="Diagram">
+                        Diagram Question
+                      </UiSelectItem>
                     </UiSelectContent>
                   </UiSelect>
                 </div>
@@ -251,8 +341,14 @@
                       v-model:checked="selectedQuestion.hasDiagram"
                       @update:checked="markAsChanged"
                     />
-                    <UiLabel for="has-diagram" class="flex items-center">
-                      <Icon name="line-md:image" class="mr-2" />
+                    <UiLabel
+                      for="has-diagram"
+                      class="flex items-center"
+                    >
+                      <Icon
+                        name="line-md:image"
+                        class="mr-2"
+                      />
                       Has Diagram
                     </UiLabel>
                   </div>
@@ -261,7 +357,9 @@
 
               <!-- Question Text -->
               <div>
-                <UiLabel for="question-text">Question Text</UiLabel>
+                <UiLabel for="question-text">
+                  Question Text
+                </UiLabel>
                 <UiTextarea
                   id="question-text"
                   v-model="selectedQuestion.text"
@@ -284,7 +382,10 @@
                     size="sm"
                     @click="addOption"
                   >
-                    <Icon name="line-md:plus" class="mr-2" />
+                    <Icon
+                      name="line-md:plus"
+                      class="mr-2"
+                    />
                     Add Option
                   </UiButton>
                 </div>
@@ -304,8 +405,8 @@
                     <UiButton
                       variant="ghost"
                       size="sm"
-                      @click="removeOption(index)"
                       :disabled="selectedQuestion.options.length <= 2"
+                      @click="removeOption(index)"
                     >
                       <Icon name="line-md:close" />
                     </UiButton>
@@ -318,7 +419,9 @@
 
               <!-- Page Information -->
               <div>
-                <UiLabel for="page-number">Page Number</UiLabel>
+                <UiLabel for="page-number">
+                  Page Number
+                </UiLabel>
                 <UiInput
                   id="page-number"
                   v-model.number="selectedQuestion.pageNumber"
@@ -331,10 +434,18 @@
           </div>
 
           <!-- No Question Selected -->
-          <div v-else class="flex-1 flex items-center justify-center">
+          <div
+            v-else
+            class="flex-1 flex items-center justify-center"
+          >
             <div class="text-center text-muted-foreground">
-              <Icon name="line-md:document-list" class="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <h3 class="text-lg font-medium mb-2">No Question Selected</h3>
+              <Icon
+                name="line-md:document-list"
+                class="h-16 w-16 mx-auto mb-4 opacity-50"
+              />
+              <h3 class="text-lg font-medium mb-2">
+                No Question Selected
+              </h3>
               <p>Select a question from the list to start editing</p>
             </div>
           </div>
@@ -346,22 +457,33 @@
           class="w-80 border-l bg-card flex flex-col"
         >
           <div class="p-4 border-b">
-            <h3 class="font-semibold">Validation Results</h3>
+            <h3 class="font-semibold">
+              Validation Results
+            </h3>
             <p class="text-sm text-muted-foreground">
               Real-time validation feedback
             </p>
           </div>
 
           <div class="flex-1 overflow-y-auto p-4">
-            <div v-if="validationResults" class="space-y-4">
+            <div
+              v-if="validationResults"
+              class="space-y-4"
+            >
               <!-- Overall Status -->
-              <div class="p-3 rounded-lg border" :class="validationResults.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+              <div
+                class="p-3 rounded-lg border"
+                :class="validationResults.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'"
+              >
                 <div class="flex items-center space-x-2">
                   <Icon
                     :name="validationResults.isValid ? 'line-md:confirm' : 'line-md:alert'"
                     :class="validationResults.isValid ? 'text-green-600' : 'text-red-600'"
                   />
-                  <span class="font-medium" :class="validationResults.isValid ? 'text-green-800' : 'text-red-800'">
+                  <span
+                    class="font-medium"
+                    :class="validationResults.isValid ? 'text-green-800' : 'text-red-800'"
+                  >
                     {{ validationResults.isValid ? 'All Valid' : 'Issues Found' }}
                   </span>
                 </div>
@@ -369,39 +491,61 @@
 
               <!-- Errors -->
               <div v-if="validationResults.errors.length > 0">
-                <h4 class="font-medium text-red-700 mb-2">Errors</h4>
+                <h4 class="font-medium text-red-700 mb-2">
+                  Errors
+                </h4>
                 <div class="space-y-2">
                   <div
                     v-for="error in validationResults.errors"
                     :key="error.code"
                     class="p-2 bg-red-50 border border-red-200 rounded text-sm"
                   >
-                    <div class="font-medium text-red-800">{{ error.field }}</div>
-                    <div class="text-red-600">{{ error.message }}</div>
+                    <div class="font-medium text-red-800">
+                      {{ error.field }}
+                    </div>
+                    <div class="text-red-600">
+                      {{ error.message }}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Warnings -->
               <div v-if="validationResults.warnings.length > 0">
-                <h4 class="font-medium text-yellow-700 mb-2">Warnings</h4>
+                <h4 class="font-medium text-yellow-700 mb-2">
+                  Warnings
+                </h4>
                 <div class="space-y-2">
                   <div
                     v-for="warning in validationResults.warnings"
                     :key="warning.code"
                     class="p-2 bg-yellow-50 border border-yellow-200 rounded text-sm"
                   >
-                    <div class="font-medium text-yellow-800">{{ warning.field }}</div>
-                    <div class="text-yellow-600">{{ warning.message }}</div>
-                    <div class="text-yellow-500 text-xs mt-1">{{ warning.suggestion }}</div>
+                    <div class="font-medium text-yellow-800">
+                      {{ warning.field }}
+                    </div>
+                    <div class="text-yellow-600">
+                      {{ warning.message }}
+                    </div>
+                    <div class="text-yellow-500 text-xs mt-1">
+                      {{ warning.suggestion }}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- No Issues -->
-              <div v-if="validationResults.isValid" class="text-center text-green-600">
-                <Icon name="line-md:confirm-circle" class="h-8 w-8 mx-auto mb-2" />
-                <p class="text-sm">No validation issues found</p>
+              <div
+                v-if="validationResults.isValid"
+                class="text-center text-green-600"
+              >
+                <Icon
+                  name="line-md:confirm-circle"
+                  class="h-8 w-8 mx-auto mb-2"
+                />
+                <p class="text-sm">
+                  No validation issues found
+                </p>
               </div>
             </div>
           </div>
@@ -415,12 +559,15 @@
         <UiDialogHeader>
           <UiDialogTitle>Save Changes</UiDialogTitle>
           <UiDialogDescription>
-            You have made changes to {{ changedQuestions.length }} question(s). 
+            You have made changes to {{ changedQuestions.length }} question(s).
             Do you want to save these changes?
           </UiDialogDescription>
         </UiDialogHeader>
         <UiDialogFooter>
-          <UiButton variant="outline" @click="showSaveDialog = false">
+          <UiButton
+            variant="outline"
+            @click="showSaveDialog = false"
+          >
             Cancel
           </UiButton>
           <UiButton @click="confirmSave">
@@ -443,6 +590,9 @@ const props = defineProps<{
   questions: AIExtractedQuestion[]
   fileName?: string
 }>()
+
+// Add fileName as a reactive reference for the template
+const fileNameRef = ref<string>('Unknown PDF')
 
 // Emits
 const emit = defineEmits<{
@@ -573,13 +723,13 @@ const getOptionRequirements = (type: string): string => {
   }
 }
 
-const getQuestionTypeVariant = (type: string) => {
-  const variants = {
-    'MCQ': 'default',
-    'MSQ': 'secondary',
-    'NAT': 'outline',
-    'MSM': 'destructive',
-    'Diagram': 'warning'
+const getQuestionTypeVariant = (type: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warn' | 'info' => {
+  const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warn' | 'info'> = {
+    MCQ: 'default',
+    MSQ: 'secondary',
+    NAT: 'outline',
+    MSM: 'destructive',
+    Diagram: 'warn',
   }
   return variants[type] || 'default'
 }
@@ -622,9 +772,143 @@ const confirmSave = () => {
   showSaveDialog.value = false
 }
 
+const saveTestForLater = async () => {
+  try {
+    // Prepare test data for saving
+    const testData = {
+      questions: editableQuestions.value,
+      metadata: {
+        fileName: props.fileName || fileNameRef.value || 'Unknown Test',
+        totalQuestions: editableQuestions.value.length,
+        savedAt: Date.now(),
+        savedBy: 'ai-review-interface',
+        overallConfidence: overallConfidence.value,
+        questionsNeedingReview: questionsNeedingReview.value,
+        questionsWithDiagrams: questionsWithDiagrams.value,
+        hasUnsavedChanges: hasChanges.value,
+      },
+      version: '1.0',
+    }
+
+    // Generate a unique test ID
+    const testId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    // Save to localStorage (and eventually to IndexedDB)
+    const savedTests = JSON.parse(localStorage.getItem('rankify-saved-tests') || '[]')
+    savedTests.push({
+      id: testId,
+      data: testData,
+      lastModified: Date.now(),
+    })
+
+    // Keep only last 50 saved tests to prevent storage overflow
+    if (savedTests.length > 50) {
+      savedTests.splice(0, savedTests.length - 50)
+    }
+
+    localStorage.setItem('rankify-saved-tests', JSON.stringify(savedTests))
+
+    // Show success message
+    console.log(`Test saved successfully with ID: ${testId}`)
+
+    // Optional: Show toast notification
+    // toast.success('Test saved successfully! You can load it later from the main page.')
+
+    // Clear any existing draft since we've saved the final version
+    clearDraftFromStorage()
+  }
+  catch (error) {
+    console.error('Failed to save test:', error)
+    // toast.error('Failed to save test. Please try again.')
+  }
+}
+
+// Auto-save functionality
+let autoSaveTimer: NodeJS.Timeout | null = null
+
+const _scheduleAutoSave = () => {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer)
+  }
+
+  autoSaveTimer = setTimeout(() => {
+    if (hasChanges.value) {
+      saveDraftToStorage()
+    }
+  }, 2000) // Auto-save after 2 seconds of inactivity
+}
+
+const saveDraftToStorage = () => {
+  try {
+    const draftData = {
+      questions: editableQuestions.value,
+      lastSaved: Date.now(),
+      hasUnsavedChanges: hasChanges.value,
+    }
+    localStorage.setItem('rankify-review-draft', JSON.stringify(draftData))
+  }
+  catch (error) {
+    console.warn('Failed to save draft:', error)
+  }
+}
+
+const loadDraftFromStorage = () => {
+  try {
+    const draftData = localStorage.getItem('rankify-review-draft')
+    if (draftData) {
+      const draft = JSON.parse(draftData)
+      if (draft.questions && draft.questions.length > 0) {
+        // Check if draft is newer than current data
+        if ((!props.questions || !props.questions.length) || draft.lastSaved > Date.now() - 300000) { // 5 minutes
+          editableQuestions.value = draft.questions
+          hasChanges.value = draft.hasUnsavedChanges || false
+        }
+      }
+    }
+  }
+  catch (error) {
+    console.warn('Failed to load draft:', error)
+  }
+}
+
+const clearDraftFromStorage = () => {
+  try {
+    localStorage.removeItem('rankify-review-draft')
+  }
+  catch (error) {
+    console.warn('Failed to clear draft:', error)
+  }
+}
+
+// Note: Auto-save is handled directly in markAsChanged via scheduleAutoSave()
+
 // Initialize
 onMounted(() => {
-  editableQuestions.value = JSON.parse(JSON.stringify(props.questions))
+  // Try to load from props first, then from localStorage
+  if (props.questions && props.questions.length > 0) {
+    editableQuestions.value = JSON.parse(JSON.stringify(props.questions))
+  }
+  else {
+    // Try to load from AI extractor data
+    const reviewData = localStorage.getItem('rankify-review-data')
+    if (reviewData) {
+      try {
+        const data = JSON.parse(reviewData)
+        editableQuestions.value = data.questions || []
+        // Clean up the stored data after loading
+        localStorage.removeItem('rankify-review-data')
+      }
+      catch (error) {
+        console.warn('Failed to load review data:', error)
+      }
+    }
+
+    // Load draft as fallback
+    if (editableQuestions.value.length === 0) {
+      loadDraftFromStorage()
+    }
+  }
+
   if (editableQuestions.value.length > 0) {
     selectedQuestionId.value = editableQuestions.value[0].id
     validateCurrentQuestion()
