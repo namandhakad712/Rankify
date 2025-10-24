@@ -29,6 +29,14 @@
 <script setup lang="ts">
 import { MiscConsts, DeprecatedLocalStorageKeys } from '#layers/shared/shared/enums'
 import { Toaster } from '#layers/shared/app/components/ui/sonner'
+import { inject } from '@vercel/analytics'
+import { injectSpeedInsights } from '@vercel/speed-insights'
+
+// Initialize Vercel Analytics & Speed Insights
+if (import.meta.client) {
+  inject() // Track page views and custom events
+  injectSpeedInsights() // Track performance metrics
+}
 
 if (import.meta.server) {
   defineOgImageComponent('OgImage')
