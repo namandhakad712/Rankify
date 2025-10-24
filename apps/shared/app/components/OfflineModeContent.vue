@@ -457,8 +457,8 @@
           <Icon name="lucide:crop" class="h-6 w-6" />
           <span>Start Offline Cropper</span>
         </NuxtLink>
-        <a 
-          href="https://github.com/namandhakad712/rankify/releases/latest" 
+        <a
+          href="https://github.com/namandhakad712/rankify/releases/latest"
           target="_blank"
           class="inline-flex items-center gap-2 px-10 py-5 bg-green-700 text-white rounded-xl font-bold text-xl hover:bg-green-800 transition-all shadow-2xl"
         >

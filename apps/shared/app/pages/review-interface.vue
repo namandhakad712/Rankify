@@ -5,12 +5,22 @@
       <Meta name="description" content="Review and edit AI-extracted questions with confidence scoring and validation" />
     </Head>
     
-    <DocsReviewInterface
-      :questions="questions"
-      :file-name="fileName"
-      @questions-updated="handleQuestionsUpdated"
-      @save="handleSave"
-    />
+    <ClientOnly>
+      <DocsReviewInterface
+        :questions="questions"
+        :file-name="fileName"
+        @questions-updated="handleQuestionsUpdated"
+        @save="handleSave"
+      />
+      <template #fallback>
+        <div class="flex items-center justify-center min-h-screen">
+          <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-slate-600 dark:text-slate-400">Loading review interface...</p>
+          </div>
+        </div>
+      </template>
+    </ClientOnly>
   </div>
 </template>
 
@@ -143,6 +153,12 @@ const handleSave = (savedQuestions: AIExtractedQuestion[]) => {
 
 // Load questions on mount
 onMounted(() => {
+  // Only run on client side
+  if (typeof window === 'undefined') {
+    console.warn('⚠️ Running on server, skipping data load')
+    return
+  }
+  
   console.log('🔍 Review Interface: Loading questions...')
   console.log('🌐 Current URL:', window.location.href)
   

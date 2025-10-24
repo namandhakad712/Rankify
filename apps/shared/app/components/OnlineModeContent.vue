@@ -319,8 +319,8 @@
       <p class="text-xl text-blue-100 dark:text-blue-200 mb-8 max-w-2xl mx-auto">
         Join thousands of users who've saved countless hours with AI-powered extraction
       </p>
-      <NuxtLink 
-        to="/ai-extractor" 
+      <NuxtLink
+        to="/ai-extractor"
         class="inline-flex items-center gap-2 px-10 py-5 bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 rounded-xl font-bold text-xl hover:bg-blue-50 dark:hover:bg-slate-800 transition-all shadow-2xl hover:scale-105"
       >
         <Icon name="lucide:sparkles" class="h-6 w-6" />

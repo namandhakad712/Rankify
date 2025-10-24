@@ -140,12 +140,11 @@
       </nav>
       <div class="flex flex-1 items-center justify-end space-x-2">
         <nav class="flex items-center">
-          <AppThemeToggle />
           <NuxtLink
             to="https://github.com/namandhakad712/rankify"
             target="_blank"
             rel="noopener noreferrer"
-            class="ml-4 w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground"
+            class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground"
             title="Rankify's github repo"
           >
             <Icon name="lucide:github" class="w-5 h-5" />
