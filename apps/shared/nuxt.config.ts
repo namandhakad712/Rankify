@@ -63,6 +63,21 @@ export default defineNuxtConfig({
       },
       cssMinify: 'lightningcss',
     },
+    server: {
+      hmr: {
+        overlay: true,
+      },
+      watch: {
+        // Ignore node_modules to speed up HMR
+        ignored: ['**/node_modules/**', '**/.nuxt/**', '**/dist/**'],
+      },
+    },
+    optimizeDeps: {
+      // Pre-bundle heavy dependencies
+      include: ['vue', 'vue-router', 'echarts'],
+      // Exclude PDF.js from optimization
+      exclude: ['pdfjs-dist'],
+    },
   },
   echarts: {
     charts: ['LineChart', 'PieChart'],

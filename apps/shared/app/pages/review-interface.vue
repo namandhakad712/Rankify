@@ -143,24 +143,82 @@ const handleSave = (savedQuestions: AIExtractedQuestion[]) => {
 
 // Load questions on mount
 onMounted(() => {
-  // In a real app, you would load questions from route params, storage, or API
-  // For demo purposes, we'll use mock data
-  questions.value = mockQuestions
-  fileName.value = 'sample-questions.pdf'
+  console.log('🔍 Review Interface: Loading questions...')
+  console.log('🌐 Current URL:', window.location.href)
   
-  // Check if questions were passed via route state
+  // Priority 0: Check navigation state (most reliable)
+  const router = useRouter()
+  const currentRoute = router.currentRoute.value
+  if (currentRoute.state && currentRoute.state.reviewData) {
+    const reviewData = currentRoute.state.reviewData as any
+    console.log('✅ Loaded from navigation state:', {
+      questionsCount: reviewData.questions?.length || 0,
+      fileName: reviewData.fileName
+    })
+    
+    if (reviewData.questions && Array.isArray(reviewData.questions)) {
+      questions.value = reviewData.questions
+      fileName.value = reviewData.fileName || 'AI Extracted Questions.pdf'
+      console.log(`📊 Loaded ${questions.value.length} questions from navigation state`)
+      return
+    }
+  }
+  
+  // Priority 1: Load from localStorage (AI extraction data)
+  try {
+    const storedData = localStorage.getItem('rankify-review-data')
+    console.log('📦 localStorage data:', storedData ? 'Found' : 'Not found')
+    
+    if (storedData) {
+      const reviewData = JSON.parse(storedData)
+      console.log('✅ Loaded AI extracted questions from localStorage:', {
+        questionsCount: reviewData.questions?.length || 0,
+        fileName: reviewData.fileName,
+        metadata: reviewData.extractionMetadata
+      })
+      
+      if (reviewData.questions && Array.isArray(reviewData.questions)) {
+        questions.value = reviewData.questions
+        fileName.value = reviewData.fileName || 'AI Extracted Questions.pdf'
+        
+        console.log(`📊 Loaded ${questions.value.length} questions from AI extraction`)
+        console.log('📝 First question preview:', questions.value[0])
+        return // Exit early, we found real data
+      } else {
+        console.warn('⚠️ localStorage data exists but questions array is invalid')
+      }
+    } else {
+      console.warn('⚠️ No data found in localStorage key: rankify-review-data')
+      console.log('🔍 All localStorage keys:', Object.keys(localStorage))
+    }
+  } catch (error) {
+    console.error('❌ Failed to load from localStorage:', error)
+  }
+  
+  // Priority 2: Check route query params
   const route = useRoute()
   if (route.query.questions) {
     try {
       const parsedQuestions = JSON.parse(route.query.questions as string)
       questions.value = parsedQuestions
+      console.log('✅ Loaded questions from route query')
+      
+      if (route.query.fileName) {
+        fileName.value = route.query.fileName as string
+      }
+      return // Exit early
     } catch (error) {
-      console.error('Failed to parse questions from route:', error)
+      console.error('❌ Failed to parse questions from route:', error)
     }
   }
   
-  if (route.query.fileName) {
-    fileName.value = route.query.fileName as string
-  }
+  // Priority 3: Fallback to mock data (only for testing)
+  console.warn('⚠️ No AI extracted data found, using mock data for demo')
+  console.warn('⚠️ This means either:')
+  console.warn('   1. You navigated directly to /review-interface')
+  console.warn('   2. localStorage is disabled/blocked')
+  console.warn('   3. Data was not saved properly from AI extractor')
+  questions.value = mockQuestions
+  fileName.value = 'sample-questions.pdf (DEMO DATA)'
 })
 </script>

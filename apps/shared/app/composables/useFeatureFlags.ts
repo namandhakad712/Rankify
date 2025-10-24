@@ -24,6 +24,14 @@ export interface FeatureFlagConfig {
 
 const defaultFlags: FeatureFlag[] = [
   {
+    key: 'gemini_api',
+    name: 'Google Gemini API',
+    description: 'Enable Google Gemini API integration for AI features',
+    enabled: true,
+    rolloutPercentage: 100,
+    environment: ['development', 'staging', 'production']
+  },
+  {
     key: 'ai_extraction',
     name: 'AI-Powered PDF Extraction',
     description: 'Enable AI-powered question extraction from PDFs using Google Gemini',

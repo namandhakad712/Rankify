@@ -49,16 +49,24 @@ export class PDFProcessor {
    */
   async loadPDF(pdfBuffer: ArrayBuffer): Promise<void> {
     try {
+      // Check if buffer is detached
+      if (pdfBuffer.byteLength === 0) {
+        throw new Error('PDF buffer is detached. Cannot load PDF.')
+      }
+      
+      // Clone the buffer to prevent detachment issues
+      const safeBuffer = pdfBuffer.slice(0)
+      
       // Use PDF.js instead of MuPDF for better browser compatibility
       const pdfjsLib = await import('pdfjs-dist')
       
-      // Set worker source
+      // Set worker source - use unpkg CDN which is more reliable
       if (typeof window !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
       }
 
-      // Load the PDF document
-      const loadingTask = pdfjsLib.getDocument({ data: pdfBuffer })
+      // Load the PDF document with the safe buffer
+      const loadingTask = pdfjsLib.getDocument({ data: safeBuffer })
       this.pdfDoc = await loadingTask.promise
       
       console.log('✅ PDF loaded successfully with PDF.js')

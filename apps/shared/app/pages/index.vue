@@ -144,8 +144,8 @@ onMounted(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     console.log('System prefers dark:', prefersDark)
     
-    // Determine initial theme
-    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark)
+    // Determine initial theme - default to light mode
+    const shouldBeDark = savedTheme === 'dark'
     isDark.value = shouldBeDark
     
     console.log('Initial isDark value:', shouldBeDark)

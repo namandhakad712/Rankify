@@ -306,12 +306,13 @@
     </div>
 
     <!-- Final CTA -->
-    <div class="bg-gradient-to-r from-blue-600/90 via-purple-600/90 to-blue-600/90 dark:from-blue-700/90 dark:via-purple-700/90 dark:to-blue-700/90 rounded-3xl p-12 text-center text-white shadow-2xl border border-white/10"
+    <div class="relative bg-gradient-to-r from-blue-600/90 via-purple-600/90 to-blue-600/90 dark:from-blue-700/90 dark:via-purple-700/90 dark:to-blue-700/90 rounded-3xl p-12 text-center text-white shadow-2xl border border-white/10 backdrop-blur-md"
          style="box-shadow:
            0 8px 32px 0 rgba(0, 0, 0, 0.37),
            0 2px 6px 0 rgba(0, 0, 0, 0.1),
            inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-           inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);">
+           inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+           backdrop-filter: blur(16px) saturate(180%);">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">
         Ready to Transform Your PDFs?
       </h2>

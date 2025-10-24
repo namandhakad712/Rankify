@@ -4,6 +4,108 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.27.0] - 2025-10-24
+
+### 🔥 Critical Bug Fixes
+
+#### **FIXED: API Key Truncation Bug**
+- **CRITICAL FIX**: API key was being truncated to first 10 characters in actual API requests
+- **Location**: `apps/shared/app/utils/geminiAPIClient.ts` line 369
+- **Issue**: Code was using truncated key (`AIzaSyD75K...`) for both logging AND the actual fetch request
+- **Impact**: ALL Gemini API requests were failing with "400 Bad Request: API key not valid"
+- **Solution**: Separated logging URL (truncated for security) from actual request URL (full key)
+- **Result**: API requests now work properly with valid Gemini API keys
+
+### 🚀 Major Performance Improvements
+
+#### **Removed Unnecessary PDF.js Processing**
+- **OPTIMIZATION**: Eliminated redundant PDF text extraction before sending to Gemini
+- **Removed**: ~60 lines of PDF.js processing code that was blocking scanned PDFs
+- **Removed**: Text validation that threw "needs OCR" errors for image-based PDFs
+- **Removed**: PDF processor initialization and cleanup logic
+- **Removed**: WASM retry logic that caused memory issues
+
+#### **Direct Gemini Vision API Integration**
+- **NEW**: PDF files now sent directly to Gemini Vision API without preprocessing
+- **BENEFIT**: Gemini Vision handles ALL PDF types natively:
+  - ✅ Text-based PDFs (normal selectable text)
+  - ✅ Scanned PDFs (built-in OCR)
+  - ✅ Image-based PDFs (vision processing)
+  - ✅ PDFs with diagrams/graphs (visual analysis)
+  - ✅ Mixed content PDFs (text + images)
+  - ✅ Handwritten questions (if legible)
+
+### 📝 Enhanced AI Prompts
+
+#### **Updated Gemini Extraction Prompt**
+- **IMPROVED**: Prompt now explicitly instructs Gemini to use vision capabilities
+- **ADDED**: Clear instructions for handling scanned/image-based PDFs
+- **ADDED**: Explicit OCR instructions for non-text PDFs
+- **RESULT**: Better extraction accuracy across all PDF types
+
+### ⚡ Performance Benefits
+
+#### **Speed Improvements**
+- **BEFORE**: 2 operations (PDF.js extraction + Gemini API call)
+- **AFTER**: 1 operation (Gemini API call only)
+- **RESULT**: Faster processing, especially for large PDFs
+
+#### **Reliability Improvements**
+- **ELIMINATED**: PDF.js WASM loading issues
+- **ELIMINATED**: Browser memory problems with large PDFs
+- **ELIMINATED**: Text extraction failures on scanned PDFs
+- **ELIMINATED**: "PDF appears to be empty" false errors
+
+#### **Compatibility Improvements**
+- **BEFORE**: Only worked with text-based PDFs
+- **AFTER**: Works with ANY PDF format Gemini can read
+- **BENEFIT**: Users can upload scanned exam papers, photos of questions, etc.
+
+### 🔧 Technical Changes
+
+#### **Modified Files**
+1. `apps/shared/app/utils/aiExtractionUtils.ts`
+   - Removed PDF processor dependency
+   - Removed text extraction validation
+   - Simplified extraction flow to direct Gemini call
+   - Updated progress reporting
+
+2. `apps/shared/app/utils/geminiAPIClient.ts`
+   - Fixed API key truncation bug
+   - Enhanced prompt for vision capabilities
+   - Added proper URL logging for security
+   - Improved error messages
+
+### 📚 Documentation
+
+#### **New Documentation Files**
+1. `GEMINI_VISION_FIX.md` - Complete explanation of PDF processing optimization
+2. `API_KEY_BUG_FIX.md` - Detailed bug analysis and fix documentation
+
+### 🎯 Impact Summary
+
+#### **Before This Release**
+- ❌ API requests failing with "invalid API key"
+- ❌ Scanned PDFs rejected with "needs OCR" error
+- ❌ Image-based PDFs showing "no text found"
+- ❌ WASM loading issues in some browsers
+- ❌ Unnecessary processing overhead
+
+#### **After This Release**
+- ✅ API requests work with valid keys
+- ✅ Scanned PDFs processed successfully
+- ✅ Image-based PDFs handled natively
+- ✅ No browser compatibility issues
+- ✅ Faster, simpler processing pipeline
+
+### 🔐 Security Improvements
+
+- **MAINTAINED**: API key still truncated in console logs for security
+- **FIXED**: Full API key now properly sent to Google API
+- **RESULT**: Security maintained while fixing functionality
+
+---
+
 ## [1.26.0] - 2025-10-12
 
 ### 🎉 Major Features

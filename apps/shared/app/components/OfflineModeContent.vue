@@ -436,12 +436,13 @@
     </div>
 
     <!-- Final CTA -->
-    <div class="bg-gradient-to-r from-green-600/90 via-emerald-600/90 to-green-600/90 rounded-3xl p-12 text-center text-white border border-white/10"
+    <div class="relative bg-gradient-to-r from-green-600/90 via-emerald-600/90 to-green-600/90 rounded-3xl p-12 text-center text-white border border-white/10 backdrop-blur-md"
          style="box-shadow:
            0 8px 32px 0 rgba(0, 0, 0, 0.37),
            0 2px 6px 0 rgba(0, 0, 0, 0.1),
            inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-           inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);">
+           inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+           backdrop-filter: blur(16px) saturate(180%);">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">
         Ready for Complete Privacy?
       </h2>
@@ -466,6 +467,11 @@
         </a>
       </div>
     </div>
+
+    <!-- Attribution -->
+    <div class="text-center mt-8 text-xs text-slate-500 dark:text-slate-400">
+      Inspired and contributed by <a href="https://github.com/TheMoonVyy/" target="_blank" rel="noopener noreferrer" class="hover:text-slate-700 dark:hover:text-slate-300 underline">TheMoonVyy</a> for offline portion of this project. 🤝
+</div>
   </div>
 </template>
 

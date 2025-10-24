@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="min-h-screen bg-background overflow-y-auto">
     <Head>
       <Title>AI PDF Extractor - Rankify</Title>
       <Meta name="description" content="Extract questions from PDF using AI-powered analysis with confidence scoring" />
@@ -58,7 +58,7 @@
     </header>
 
     <!-- Main Content Area with Proper Scrolling -->
-    <div class="container mx-auto px-4 py-6 pb-20">
+    <div class="container mx-auto px-4 py-6 pb-32 overflow-visible">
       <!-- Upload Section -->
       <div class="max-w-4xl mx-auto space-y-6">
         <!-- Quick Info Banner -->
@@ -232,8 +232,62 @@
           </div>
         </UiCard>
 
+        <!-- No Questions Found Warning -->
+        <UiCard v-if="extractionResult && extractionResult.questions.length === 0" class="p-8 border-2 border-orange-300 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30">
+          <div class="text-center space-y-4">
+            <div class="mx-auto w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+              <Icon name="lucide:alert-triangle" class="h-8 w-8 text-orange-600 dark:text-orange-400" />
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-bold text-orange-900 dark:text-orange-100 mb-2">
+                No Questions Detected
+              </h3>
+              <p class="text-orange-700 dark:text-orange-300 max-w-md mx-auto">
+                The AI couldn't find any questions in this PDF. This might happen if:
+              </p>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-lg p-4 max-w-lg mx-auto text-left">
+              <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <li class="flex items-start gap-2">
+                  <Icon name="lucide:circle" class="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>The PDF contains images instead of text (scanned document)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <Icon name="lucide:circle" class="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>The content doesn't follow a standard question format</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <Icon name="lucide:circle" class="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>The PDF is in a language not well-supported by the AI</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <Icon name="lucide:circle" class="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>The document doesn't actually contain questions</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="flex gap-3 justify-center">
+              <UiButton variant="outline" @click="clearFile">
+                <Icon name="lucide:upload" class="h-4 w-4 mr-2" />
+                Try Another PDF
+              </UiButton>
+              <UiButton variant="outline" @click="showSettings = true">
+                <Icon name="lucide:settings" class="h-4 w-4 mr-2" />
+                Adjust Settings
+              </UiButton>
+            </div>
+
+            <p class="text-xs text-orange-600 dark:text-orange-400">
+              Processing time: {{ Math.round(extractionResult.processingTime / 1000) }}s
+            </p>
+          </div>
+        </UiCard>
+
         <!-- Results Section -->
-        <UiCard v-if="extractionResult" class="p-6">
+        <UiCard v-if="extractionResult && extractionResult.questions.length > 0" class="p-6">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-xl font-bold">Extraction Results</h3>
             <div class="flex gap-2">
@@ -276,32 +330,71 @@
             </div>
           </div>
 
-          <!-- Questions Preview -->
-          <div class="space-y-3 max-h-96 overflow-y-auto">
-            <div
-              v-for="(question, idx) in extractionResult.questions.slice(0, 5)"
-              :key="idx"
-              class="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
-            >
-              <div class="flex items-start justify-between mb-2">
-                <div class="flex gap-2">
-                  <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
-                    {{ question.type }}
-                  </span>
-                  <span v-if="question.hasDiagram" class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded">
-                    Diagram
-                  </span>
-                </div>
-                <div class="text-sm font-semibold" :class="getConfidenceColor(question.confidence)">
-                  {{ question.confidence }}/5
-                </div>
-              </div>
-              <p class="text-sm line-clamp-2">{{ question.text }}</p>
+          <!-- Questions Preview - All Questions with Scroll -->
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                Extracted Questions ({{ extractionResult.questions.length }})
+              </h4>
+              <span class="text-sm text-muted-foreground">
+                Scroll to view all
+              </span>
             </div>
             
-            <p v-if="extractionResult.questions.length > 5" class="text-center text-sm text-muted-foreground py-2">
-              +{{ extractionResult.questions.length - 5 }} more questions
-            </p>
+            <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+              <div
+                v-for="(question, idx) in extractionResult.questions"
+                :key="idx"
+                class="border-2 border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-md transition-all duration-200 bg-white dark:bg-slate-800/50"
+              >
+                <!-- Question Header -->
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-md border border-slate-300 dark:border-slate-600">
+                      Q{{ idx + 1 }}
+                    </span>
+                    <span class="px-2.5 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-md">
+                      {{ question.type }}
+                    </span>
+                    <span v-if="question.hasDiagram" class="px-2.5 py-1 bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded-md flex items-center gap-1">
+                      <Icon name="lucide:image" class="h-3 w-3" />
+                      Diagram
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md" :class="getConfidenceBgColor(question.confidence)">
+                    <Icon name="lucide:star" class="h-3.5 w-3.5" :class="getConfidenceColor(question.confidence)" />
+                    <span class="text-sm font-bold" :class="getConfidenceColor(question.confidence)">
+                      {{ question.confidence }}/5
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Question Text -->
+                <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {{ question.text }}
+                </p>
+                
+                <!-- Options Preview (if available) -->
+                <div v-if="question.options && question.options.length > 0" class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                    <Icon name="lucide:list" class="h-3 w-3" />
+                    <span>{{ question.options.length }} options</span>
+                  </div>
+                  <div class="grid grid-cols-1 gap-1.5">
+                    <div
+                      v-for="(option, optIdx) in question.options.slice(0, 2)"
+                      :key="optIdx"
+                      class="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 px-2 py-1 rounded"
+                    >
+                      {{ String.fromCharCode(65 + optIdx) }}. {{ option.length > 60 ? option.substring(0, 60) + '...' : option }}
+                    </div>
+                    <span v-if="question.options.length > 2" class="text-xs text-muted-foreground italic">
+                      +{{ question.options.length - 2 }} more options
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </UiCard>
 
@@ -310,8 +403,10 @@
           <div class="flex items-start gap-3">
             <Icon name="lucide:alert-circle" class="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div class="flex-1">
-              <h3 class="font-bold text-lg text-red-900 dark:text-red-100 mb-2">Extraction Failed</h3>
-              <p class="text-sm text-red-700 dark:text-red-300 mb-3">{{ extractionError }}</p>
+              <h3 class="font-bold text-lg text-red-900 dark:text-red-100 mb-3">Extraction Failed</h3>
+              <div class="bg-white dark:bg-slate-900 rounded-lg p-3 mb-3 border border-red-200 dark:border-red-800">
+                <pre class="text-sm text-red-700 dark:text-red-300 whitespace-pre-wrap font-sans">{{ extractionError }}</pre>
+              </div>
               
               <!-- Helpful Tips -->
               <div class="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4">
@@ -664,6 +759,14 @@ const getConfidenceColor = (score: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
+const getConfidenceBgColor = (score: number): string => {
+  if (score >= 4.5) return 'bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800'
+  if (score >= 3.5) return 'bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800'
+  if (score >= 2.5) return 'bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800'
+  if (score >= 1.5) return 'bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800'
+  return 'bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800'
+}
+
 const startExtraction = async () => {
   if (!selectedFile.value || !isConfigured.value) return
 
@@ -702,14 +805,24 @@ const startExtraction = async () => {
     const processingTime = Date.now() - startTime
     
     // Track successful extraction
-    track('AI Extraction Completed', {
-      model: config.value.model,
-      questionsExtracted: result.questions.length,
-      averageConfidence: result.confidence,
-      processingTime: processingTime,
-      diagramsDetected: result.questions.filter(q => q.hasDiagram).length,
-      fileSize: selectedFile.value.size
-    })
+    if (result.questions.length > 0) {
+      track('AI Extraction Completed', {
+        model: config.value.model,
+        questionsExtracted: result.questions.length,
+        averageConfidence: result.confidence,
+        processingTime: processingTime,
+        diagramsDetected: result.questions.filter(q => q.hasDiagram).length,
+        fileSize: selectedFile.value.size
+      })
+    } else {
+      // Track when no questions found
+      track('AI Extraction - No Questions Found', {
+        model: config.value.model,
+        processingTime: processingTime,
+        fileSize: selectedFile.value.size,
+        fileName: selectedFile.value.name
+      })
+    }
   } catch (error: any) {
     extractionError.value = error.message || 'An unknown error occurred'
     console.error('Extraction failed:', error)
@@ -752,7 +865,10 @@ const exportResults = () => {
 }
 
 const proceedToReview = async () => {
-  if (!extractionResult.value) return
+  if (!extractionResult.value) {
+    console.error('❌ No extraction result available')
+    return
+  }
   
   try {
     const reviewData = {
@@ -766,7 +882,28 @@ const proceedToReview = async () => {
       }
     }
     
+    console.log('💾 Saving to localStorage:', {
+      questionsCount: reviewData.questions.length,
+      fileName: reviewData.fileName
+    })
+    
+    // Save to localStorage
     localStorage.setItem('rankify-review-data', JSON.stringify(reviewData))
+    
+    // Verify it was saved
+    const saved = localStorage.getItem('rankify-review-data')
+    if (saved) {
+      console.log('✅ Data successfully saved to localStorage')
+      const parsed = JSON.parse(saved)
+      console.log('📊 Saved data preview:', {
+        questionsCount: parsed.questions.length,
+        firstQuestion: parsed.questions[0]?.text?.substring(0, 50) + '...'
+      })
+    } else {
+      console.error('❌ Failed to save data to localStorage')
+      alert('Failed to save data. Please check if localStorage is enabled in your browser.')
+      return
+    }
     
     // Track navigation to review
     track('Proceeded to Review', {
@@ -774,9 +911,19 @@ const proceedToReview = async () => {
       averageConfidence: extractionResult.value.confidence
     })
     
-    await navigateTo('/review-interface')
+    console.log('🚀 Navigating to review interface...')
+    
+    // Small delay to ensure localStorage is written
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Navigate with state as backup
+    await navigateTo({
+      path: '/review-interface',
+      state: { reviewData }
+    })
   } catch (error) {
-    console.error('Failed to proceed to review:', error)
+    console.error('❌ Failed to proceed to review:', error)
+    alert('Failed to proceed to review. Check console for details.')
   }
 }
 
@@ -838,11 +985,29 @@ const verifyApiKey = async () => {
 }
 
 const saveSettings = async () => {
+  console.log('💾 Attempting to save settings...')
+  console.log('📝 Current config:', {
+    hasApiKey: !!config.value.apiKey,
+    apiKeyLength: config.value.apiKey?.length || 0,
+    model: config.value.model
+  })
+  
   // Verify API key before saving
   const isValid = await verifyApiKey()
   
   if (isValid) {
-    localStorage.setItem('rankify-ai-config', JSON.stringify(config.value))
+    const configToSave = JSON.stringify(config.value)
+    localStorage.setItem('rankify-ai-config', configToSave)
+    
+    // Verify it was saved
+    const savedConfig = localStorage.getItem('rankify-ai-config')
+    if (savedConfig) {
+      console.log('✅ Settings saved successfully to localStorage')
+      console.log('📦 Saved config size:', savedConfig.length, 'bytes')
+    } else {
+      console.error('❌ Failed to save to localStorage')
+    }
+    
     showSettings.value = false
     
     // Track settings saved
@@ -852,6 +1017,8 @@ const saveSettings = async () => {
       diagramDetection: config.value.enableDiagramDetection,
       cacheEnabled: config.value.enableCache
     })
+    
+    alert('Settings saved successfully!')
   } else {
     // Show error in the dialog
     alert('Invalid API key. Please check your API key and try again.')
@@ -891,6 +1058,8 @@ const toggleTheme = () => {
 
 // Load saved config
 onMounted(async () => {
+  console.log('🚀 AI Extractor page mounted')
+  
   // Initialize theme
   if (typeof window !== 'undefined') {
     const savedTheme = localStorage.getItem('rankify_theme')
@@ -907,16 +1076,30 @@ onMounted(async () => {
   }
   
   // Load API config
+  console.log('🔍 Loading API config from localStorage...')
   const saved = localStorage.getItem('rankify-ai-config')
+  
   if (saved) {
+    console.log('✅ Found saved config in localStorage')
     try {
-      config.value = { ...config.value, ...JSON.parse(saved) }
+      const parsedConfig = JSON.parse(saved)
+      console.log('📝 Loaded config:', {
+        hasApiKey: !!parsedConfig.apiKey,
+        apiKeyLength: parsedConfig.apiKey?.length || 0,
+        model: parsedConfig.model,
+        confidenceThreshold: parsedConfig.confidenceThreshold
+      })
+      
+      config.value = { ...config.value, ...parsedConfig }
+      
       // Verify the saved API key
+      console.log('🔐 Verifying saved API key...')
       await verifyApiKey()
     } catch (e) {
-      console.error('Failed to load saved config')
+      console.error('❌ Failed to load saved config:', e)
     }
   } else {
+    console.warn('⚠️ No saved config found in localStorage')
     apiKeyStatus.value = 'not-set'
   }
 })
@@ -925,12 +1108,6 @@ console.log('🚀 AI Extractor page loaded')
 </script>
 
 <style scoped>
-/* Ensure proper scrolling */
-html, body {
-  overflow-y: auto !important;
-  height: auto !important;
-}
-
 /* Shimmer animation for upload progress */
 @keyframes shimmer {
   0% {
@@ -939,6 +1116,47 @@ html, body {
   100% {
     transform: translateX(100%);
   }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+.dark .custom-scrollbar {
+  scrollbar-color: rgb(51 65 85) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105);
 }
 
 .animate-shimmer {
