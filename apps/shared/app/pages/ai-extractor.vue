@@ -547,6 +547,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getFeatureFlags } from '#layers/shared/app/composables/useFeatureFlags'
 import { aiExtractionUtils, type AIExtractionProgress } from '#layers/shared/app/utils/aiExtractionUtils'
 import type { AIExtractionResult } from '#layers/shared/app/utils/geminiAPIClient'
+import { track } from '@vercel/analytics'
 
 definePageMeta({
   title: 'AI PDF Extractor',
@@ -589,8 +590,21 @@ const handleFileSelect = async (event: Event) => {
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert('File size exceeds 10MB limit. Please select a smaller file.')
+      
+      // Track file size error
+      track('File Upload Failed', {
+        reason: 'File too large',
+        fileSize: file.size
+      })
+      
       return
     }
+    
+    // Track file upload started
+    track('PDF Upload Started', {
+      fileSize: file.size,
+      fileName: file.name
+    })
     
     // Start upload simulation
     isUploading.value = true
@@ -613,6 +627,12 @@ const handleFileSelect = async (event: Event) => {
           selectedFile.value = file
           isUploading.value = false
           uploadProgress.value = 0
+          
+          // Track successful upload
+          track('PDF Upload Completed', {
+            fileSize: file.size,
+            fileName: file.name
+          })
         }, 300)
       }
     }, 50) // Update every 50ms for smooth animation
@@ -650,6 +670,17 @@ const startExtraction = async () => {
   isProcessing.value = true
   extractionError.value = null
   extractionProgress.value = null
+  
+  const startTime = Date.now()
+
+  // Track extraction started
+  track('AI Extraction Started', {
+    model: config.value.model,
+    fileSize: selectedFile.value.size,
+    confidenceThreshold: config.value.confidenceThreshold,
+    diagramDetection: config.value.enableDiagramDetection,
+    cacheEnabled: config.value.enableCache
+  })
 
   try {
     const engine = aiExtractionUtils.createEngine(config.value.apiKey, {
@@ -667,9 +698,28 @@ const startExtraction = async () => {
     })
 
     extractionResult.value = result
+    
+    const processingTime = Date.now() - startTime
+    
+    // Track successful extraction
+    track('AI Extraction Completed', {
+      model: config.value.model,
+      questionsExtracted: result.questions.length,
+      averageConfidence: result.confidence,
+      processingTime: processingTime,
+      diagramsDetected: result.questions.filter(q => q.hasDiagram).length,
+      fileSize: selectedFile.value.size
+    })
   } catch (error: any) {
     extractionError.value = error.message || 'An unknown error occurred'
     console.error('Extraction failed:', error)
+    
+    // Track extraction failure
+    track('AI Extraction Failed', {
+      model: config.value.model,
+      error: error.message,
+      fileSize: selectedFile.value?.size
+    })
   } finally {
     isProcessing.value = false
   }
@@ -693,6 +743,12 @@ const exportResults = () => {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
+  
+  // Track export
+  track('Results Exported', {
+    questionsCount: extractionResult.value.questions.length,
+    format: 'json'
+  })
 }
 
 const proceedToReview = async () => {
@@ -711,6 +767,13 @@ const proceedToReview = async () => {
     }
     
     localStorage.setItem('rankify-review-data', JSON.stringify(reviewData))
+    
+    // Track navigation to review
+    track('Proceeded to Review', {
+      questionsCount: extractionResult.value.questions.length,
+      averageConfidence: extractionResult.value.confidence
+    })
+    
     await navigateTo('/review-interface')
   } catch (error) {
     console.error('Failed to proceed to review:', error)
@@ -744,16 +807,30 @@ const verifyApiKey = async () => {
       }
       
       apiKeyStatus.value = 'verified'
+      
+      // Track successful API verification
+      track('API Key Verified', {
+        modelsAvailable: availableModels.value.length
+      })
+      
       return true
     } else {
       const error = await response.json()
       console.error('❌ API Key verification failed:', error)
       apiKeyStatus.value = 'not-set'
+      
+      // Track failed verification
+      track('API Key Verification Failed')
+      
       return false
     }
   } catch (error) {
     console.error('❌ API Key verification error:', error)
     apiKeyStatus.value = 'not-set'
+    
+    // Track verification error
+    track('API Key Verification Error')
+    
     return false
   } finally {
     isVerifyingApi.value = false
@@ -767,6 +844,14 @@ const saveSettings = async () => {
   if (isValid) {
     localStorage.setItem('rankify-ai-config', JSON.stringify(config.value))
     showSettings.value = false
+    
+    // Track settings saved
+    track('Settings Saved', {
+      model: config.value.model,
+      confidenceThreshold: config.value.confidenceThreshold,
+      diagramDetection: config.value.enableDiagramDetection,
+      cacheEnabled: config.value.enableCache
+    })
   } else {
     // Show error in the dialog
     alert('Invalid API key. Please check your API key and try again.')
@@ -797,6 +882,11 @@ const toggleTheme = () => {
     localStorage.setItem('rankify_theme', isDark.value ? 'dark' : 'light')
     console.log('💾 Theme saved to localStorage')
   }
+  
+  // Track theme change
+  track('Theme Changed', {
+    theme: isDark.value ? 'dark' : 'light'
+  })
 }
 
 // Load saved config

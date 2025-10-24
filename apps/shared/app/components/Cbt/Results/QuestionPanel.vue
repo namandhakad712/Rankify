@@ -995,10 +995,9 @@ async function loadDemoTestZip() {
     pdfRenderingProgress.value = 'loading-zip-from-url'
     drawerVisibility.value = true
 
-    const zipModule = await import('#layers/shared/app/assets/zip/demo_test_data_pre_generated.zip?url')
-    const zipUrl = zipModule.default
-
-    if (zipUrl) tryLoadingZipFromUrl(zipUrl, '', true)
+    // Demo file removed - users should provide their own test data
+    console.warn('Demo test data not available. Please load your own test data.')
+    pdfRenderingProgress.value = 'failed'
   }
   catch (err) {
     console.error('Error loading Demo Test Zip file', err)
