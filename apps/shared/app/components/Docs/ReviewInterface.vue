@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
     <!-- Header -->
-    <div class="border-b bg-card p-4">
+    <div class="border-b bg-white dark:bg-slate-800 shadow-sm p-4">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold">
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
             Review AI Extracted Questions
           </h1>
-          <p class="text-muted-foreground">
+          <p class="text-slate-600 dark:text-slate-300">
             Review and edit {{ totalQuestions }} questions extracted from {{ fileNameRef }}
           </p>
         </div>
@@ -54,7 +54,7 @@
 
     <div class="flex h-[calc(100vh-80px)]">
       <!-- Left Sidebar - Question List -->
-      <div class="w-80 border-r bg-card flex flex-col">
+      <div class="w-80 border-r bg-white dark:bg-slate-800 flex flex-col shadow-sm">
         <!-- Filters -->
         <div class="p-4 border-b space-y-3">
           <div>
@@ -139,8 +139,8 @@
               :class="[
                 'p-3 rounded-lg cursor-pointer transition-all border',
                 selectedQuestionId === question.id
-                  ? 'bg-primary/10 border-primary'
-                  : 'bg-background hover:bg-muted border-border',
+                  ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 shadow-md'
+                  : 'bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-600',
                 getQuestionHighlightClass(question),
               ]"
               @click="selectQuestion(question.id)"
@@ -169,11 +169,11 @@
                       Q{{ question.questionNumber }}
                     </span>
                   </div>
-                  <p class="text-sm font-medium line-clamp-2 mb-1">
+                  <p class="text-sm font-medium line-clamp-2 mb-1 text-slate-800 dark:text-slate-200">
                     {{ question.text }}
                   </p>
                   <div class="flex items-center justify-between">
-                    <span class="text-xs text-muted-foreground">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">
                       {{ question.subject }} • {{ question.section }}
                     </span>
                     <div class="flex items-center space-x-1">
@@ -191,19 +191,19 @@
         </div>
 
         <!-- Summary Stats -->
-        <div class="p-4 border-t bg-muted/50">
-          <div class="text-sm space-y-1">
+        <div class="p-4 border-t bg-slate-100 dark:bg-slate-700/50">
+          <div class="text-sm space-y-1 text-slate-700 dark:text-slate-300">
             <div class="flex justify-between">
               <span>Total Questions:</span>
-              <span class="font-medium">{{ filteredQuestions.length }}</span>
+              <span class="font-medium text-slate-900 dark:text-slate-100">{{ filteredQuestions.length }}</span>
             </div>
             <div class="flex justify-between">
               <span>Needs Review:</span>
-              <span class="font-medium text-red-600">{{ questionsNeedingReview }}</span>
+              <span class="font-medium text-red-600 dark:text-red-400">{{ questionsNeedingReview }}</span>
             </div>
             <div class="flex justify-between">
               <span>Has Diagrams:</span>
-              <span class="font-medium text-orange-600">{{ questionsWithDiagrams }}</span>
+              <span class="font-medium text-orange-600 dark:text-orange-400">{{ questionsWithDiagrams }}</span>
             </div>
           </div>
         </div>
@@ -218,9 +218,9 @@
             class="flex-1 overflow-y-auto"
           >
             <!-- Question Header -->
-            <div class="p-6 border-b bg-card">
+            <div class="p-6 border-b bg-white dark:bg-slate-800 shadow-sm">
               <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold">
+                <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">
                   Question {{ selectedQuestion.questionNumber }}
                 </h2>
                 <div class="flex items-center space-x-2">
@@ -256,14 +256,14 @@
                   >
                   <span class="text-sm font-medium w-12">{{ selectedQuestion.confidence }}</span>
                 </div>
-                <p class="text-xs text-muted-foreground mt-1">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
                   {{ getConfidenceDescription(selectedQuestion.confidence) }}
                 </p>
               </div>
             </div>
 
             <!-- Question Content Editor -->
-            <div class="p-6 space-y-6">
+            <div class="p-6 space-y-6 bg-white dark:bg-slate-800">
               <!-- Basic Information -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -368,7 +368,7 @@
                   class="mt-1"
                   @input="markAsChanged"
                 />
-                <p class="text-xs text-muted-foreground mt-1">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
                   Characters: {{ selectedQuestion.text.length }}
                 </p>
               </div>
@@ -412,7 +412,7 @@
                     </UiButton>
                   </div>
                 </div>
-                <p class="text-xs text-muted-foreground mt-2">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">
                   {{ getOptionRequirements(selectedQuestion.type) }}
                 </p>
               </div>
@@ -430,15 +430,68 @@
                   @input="markAsChanged"
                 />
               </div>
+
+              <!-- Diagrams Section -->
+              <div v-if="selectedQuestion.hasDiagram" class="border-t pt-6">
+                <div class="flex items-center justify-between mb-4">
+                  <UiLabel class="text-base font-semibold">Diagrams</UiLabel>
+                  <UiBadge variant="outline" class="text-orange-600 border-orange-600">
+                    <Icon name="lucide:image" class="h-3 w-3 mr-1" />
+                    {{ selectedQuestion.diagrams?.length || 0 }} diagram(s)
+                  </UiBadge>
+                </div>
+                
+                <div v-if="selectedQuestion.diagrams && selectedQuestion.diagrams.length > 0" class="space-y-4">
+                  <div 
+                    v-for="(diagram, idx) in selectedQuestion.diagrams" 
+                    :key="idx"
+                    class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {{ diagram.label || `Diagram ${idx + 1}` }}
+                      </span>
+                      <UiBadge variant="outline" class="text-xs">
+                        Page {{ diagram.pageNumber }}
+                      </UiBadge>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                      Coordinates: ({{ diagram.boundingBox.x.toFixed(2) }}, {{ diagram.boundingBox.y.toFixed(2) }}) 
+                      • Size: {{ (diagram.boundingBox.width * 100).toFixed(0) }}% × {{ (diagram.boundingBox.height * 100).toFixed(0) }}%
+                      • Confidence: {{ diagram.confidence }}/5
+                    </p>
+                    <!-- Diagram preview would go here when PDF buffer is available -->
+                    <div class="bg-slate-200 dark:bg-slate-600 rounded p-8 text-center text-slate-500 dark:text-slate-400">
+                      <Icon name="lucide:image" class="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p class="text-sm">Diagram detected with coordinates</p>
+                      <p class="text-xs mt-1">(Rendering requires PDF buffer)</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-else class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <div class="flex items-start gap-3">
+                    <Icon name="lucide:alert-circle" class="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p class="text-sm font-medium text-orange-800 dark:text-orange-200">
+                        Diagram detected but coordinates not available
+                      </p>
+                      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                        This question has a diagram, but coordinate detection was not run during extraction.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- No Question Selected -->
           <div
             v-else
-            class="flex-1 flex items-center justify-center"
+            class="flex-1 flex items-center justify-center bg-white dark:bg-slate-800"
           >
-            <div class="text-center text-muted-foreground">
+            <div class="text-center text-slate-500 dark:text-slate-400">
               <Icon
                 name="line-md:document-list"
                 class="h-16 w-16 mx-auto mb-4 opacity-50"
@@ -454,13 +507,13 @@
         <!-- Validation Panel -->
         <div
           v-if="showValidationPanel"
-          class="w-80 border-l bg-card flex flex-col"
+          class="w-80 border-l bg-white dark:bg-slate-800 flex flex-col shadow-sm"
         >
-          <div class="p-4 border-b">
-            <h3 class="font-semibold">
+          <div class="p-4 border-b bg-slate-50 dark:bg-slate-700/50">
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
               Validation Results
             </h3>
-            <p class="text-sm text-muted-foreground">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
               Real-time validation feedback
             </p>
           </div>

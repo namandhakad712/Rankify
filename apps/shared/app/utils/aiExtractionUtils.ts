@@ -55,7 +55,7 @@ export class AIExtractionEngine {
       geminiModel: 'gemini-1.5-flash',
       maxRetries: 3,
       confidenceThreshold: 2.5,
-      enableDiagramDetection: true,
+      enableDiagramDetection: false,  // Disabled - Gemini extracts coordinates directly now
       maxFileSizeMB: 10,
       ...config
     }
@@ -80,7 +80,11 @@ export class AIExtractionEngine {
     options: AIExtractionOptions = {}
   ): Promise<AIExtractionResult> {
     const actualFileName = fileName || (pdfFile instanceof File ? pdfFile.name : 'unknown.pdf')
-    const pdfBuffer = pdfFile instanceof File ? await pdfFile.arrayBuffer() : pdfFile
+    const originalBuffer = pdfFile instanceof File ? await pdfFile.arrayBuffer() : pdfFile
+    
+    // Clone the buffer to prevent detachment issues
+    // ArrayBuffers get "detached" when transferred, so we need a copy for storage
+    const pdfBuffer = originalBuffer.slice(0)
 
     // Progress tracking
     const reportProgress = (stage: AIExtractionProgress['stage'], progress: number, message: string) => {
@@ -134,6 +138,48 @@ export class AIExtractionEngine {
       
       console.log(`✅ Gemini extracted ${extractionResult.questions.length} questions`)
 
+      // Detect diagram coordinates for questions with diagrams
+      if (this.config.enableDiagramDetection) {
+        const questionsWithDiagrams = extractionResult.questions.filter(q => q.hasDiagram)
+        
+        if (questionsWithDiagrams.length > 0) {
+          reportProgress('extracting_questions', 60, `Detecting diagram coordinates for ${questionsWithDiagrams.length} questions...`)
+          
+          try {
+            const { detectDiagramCoordinates } = await import('./geminiDiagramDetection')
+            const { matchDiagramsToQuestions } = await import('./diagramCoordinateUtils')
+            
+            console.log(`🎨 Detecting diagram coordinates for ${questionsWithDiagrams.length} questions...`)
+            const diagrams = await detectDiagramCoordinates(pdfBuffer, this.config.geminiApiKey)
+            
+            if (diagrams.length > 0) {
+              console.log(`✅ Detected ${diagrams.length} diagrams with coordinates`)
+              
+              // Match diagrams to questions
+              const matchedQuestions = matchDiagramsToQuestions(extractionResult.questions as any, diagrams)
+              extractionResult.questions = matchedQuestions as any
+              
+              console.log(`🔗 Matched diagrams to questions`)
+            } else {
+              console.log(`⚠️ No diagram coordinates detected`)
+            }
+          } catch (diagramError: any) {
+            console.error('❌ Diagram detection failed:', diagramError)
+            console.error('Error details:', {
+              message: diagramError?.message,
+              stack: diagramError?.stack?.split('\n').slice(0, 3).join('\n')
+            })
+            
+            // Add helpful error message
+            if (diagramError?.message?.includes('worker') || diagramError?.message?.includes('PDF.js')) {
+              console.warn('💡 PDF.js worker issue detected. Diagram coordinates require browser environment.')
+            }
+            
+            // Continue without diagrams - don't fail the entire extraction
+          }
+        }
+      }
+
       reportProgress('validating', 80, 'Validating extraction results...')
 
       // Validate results if not skipped
@@ -166,6 +212,25 @@ export class AIExtractionEngine {
         const fileHash = await aiStorageUtils.generateFileHash(pdfBuffer)
 
         await storage.storeExtractionResult(actualFileName, fileHash, extractionResult)
+
+        // Store PDF buffer for diagram rendering (if diagrams detected)
+        const hasAnyDiagrams = extractionResult.questions.some(q => q.hasDiagram)
+        if (hasAnyDiagrams) {
+          try {
+            const { storePDFWithQuestions } = await import('./diagramStorage')
+            await storePDFWithQuestions(actualFileName, pdfBuffer, extractionResult.questions as any)
+            console.log(`💾 Stored PDF buffer for diagram rendering`)
+          } catch (storageError: any) {
+            console.error('❌ Failed to store PDF buffer:', storageError?.message || storageError)
+            console.error('Storage error details:', {
+              fileName: actualFileName,
+              bufferSize: pdfBuffer.byteLength,
+              questionCount: extractionResult.questions.length,
+              error: storageError
+            })
+            // Continue - this is not critical for extraction
+          }
+        }
 
         // Cache for future use
         if (options.enableCache) {

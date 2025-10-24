@@ -161,6 +161,24 @@ For each question, provide:
 - negativeMarks: negative marking (default 0)
 - confidence: your confidence in extraction accuracy (1-5 scale, 5 being highest)
 - hasDiagram: true if question has or references figures, diagrams, graphs, images
+- diagrams: if hasDiagram is true, provide array of diagram objects with their locations:
+  [{
+    "pageNumber": <which page the diagram is on>,
+    "boundingBox": {
+      "x": <0-1, horizontal position from left edge>,
+      "y": <0-1, vertical position from top edge>,
+      "width": <0-1, diagram width as fraction of page width>,
+      "height": <0-1, diagram height as fraction of page height>
+    },
+    "confidence": <1-5, your confidence in diagram location accuracy>,
+    "label": "<Figure X.X or diagram title if visible, e.g., 'Figure 2.3', 'Circuit A'>",
+    "type": "<circuit|graph|flowchart|table|image|other>"
+  }]
+  * Use normalized coordinates (0-1) for resolution independence
+  * x=0 is left edge, x=1 is right edge
+  * y=0 is top edge, y=1 is bottom edge
+  * Estimate diagram position as accurately as possible
+  * If multiple diagrams for one question, include all of them
 
 IMPORTANT NOTES:
 - Look for answer keys, solutions, or marked correct answers in the PDF

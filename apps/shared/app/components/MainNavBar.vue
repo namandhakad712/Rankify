@@ -139,7 +139,17 @@
         </div>
       </nav>
       <div class="flex flex-1 items-center justify-end space-x-2">
-        <nav class="flex items-center">
+        <nav class="flex items-center gap-2">
+          <!-- Theme Toggle -->
+          <button
+            @click="toggleTheme"
+            class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-accent hover:text-accent-foreground transition-colors"
+            :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <Icon v-if="isDark" name="lucide:sun" class="w-5 h-5 text-yellow-500" />
+            <Icon v-else name="lucide:moon" class="w-5 h-5" />
+          </button>
+          
           <NuxtLink
             to="https://github.com/namandhakad712/rankify"
             target="_blank"
@@ -172,6 +182,34 @@ const {
   reviewInterfaceEnabled,
   confidenceScoringEnabled
 } = featureFlags
+
+// Theme management
+const isDark = ref(false)
+
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
+
+// Initialize theme on mount
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  
+  isDark.value = savedTheme === 'dark' || (!savedTheme && systemPrefersDark)
+  
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+})
 
 const themeVariants = {
   blue: 'hsl(217.2 91.2% 59.8%)',
