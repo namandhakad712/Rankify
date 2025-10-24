@@ -74,7 +74,7 @@ export class AIExtractionEngine {
    * Extract questions from PDF file
    */
   async extractFromPDF(
-    pdfFile: File | ArrayBuffer, 
+    pdfFile: File | ArrayBuffer,
     fileName?: string,
     options: AIExtractionOptions = {}
   ): Promise<AIExtractionResult> {
@@ -105,7 +105,7 @@ export class AIExtractionEngine {
         const fileHash = await aiStorageUtils.generateFileHash(pdfBuffer)
         const storage = await getAIStorage()
         const cached = await storage.getCachedExtraction(fileHash)
-        
+
         if (cached) {
           reportProgress('completed', 100, 'Using cached extraction result')
           return cached
@@ -114,9 +114,44 @@ export class AIExtractionEngine {
 
       reportProgress('processing_pdf', 20, 'Processing PDF and extracting text...')
 
-      // Process PDF
-      await this.pdfProcessor.loadPDF(pdfBuffer)
-      const pdfResult = await this.pdfProcessor.extractText()
+      // Process PDF with retry logic for WASM issues
+      let pdfResult: any = null
+      let retryCount = 0
+      const maxRetries = 1 // Reduced retries since PDF.js is more reliable
+
+      while (retryCount <= maxRetries) {
+        try {
+          console.log(`📄 Loading PDF (attempt ${retryCount + 1}/${maxRetries + 1})...`)
+          await this.pdfProcessor.loadPDF(pdfBuffer)
+          
+          console.log('📝 Extracting text from PDF...')
+          pdfResult = await this.pdfProcessor.extractText()
+          
+          console.log(`✅ PDF processed successfully: ${pdfResult.pageCount} pages, ${pdfResult.text.length} characters`)
+          break // Success, exit retry loop
+        } catch (error: any) {
+          console.error(`❌ PDF processing attempt ${retryCount + 1} failed:`, error)
+
+          if (retryCount < maxRetries) {
+            retryCount++
+            reportProgress('processing_pdf', 15 + (retryCount * 5), `Retrying PDF processing (${retryCount}/${maxRetries})...`)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            continue
+          } else {
+            // All retries failed
+            throw new Error(`Failed to process PDF: ${error?.message || 'Unknown error'}. Please ensure the PDF is not corrupted and try again.`)
+          }
+        }
+      }
+
+      if (!pdfResult) {
+        throw new Error('Failed to process PDF after all retry attempts')
+      }
+      
+      // Validate extracted text
+      if (!pdfResult.text || pdfResult.text.trim().length < 50) {
+        throw new Error('PDF appears to be empty or contains no readable text. Please ensure the PDF contains text-based content.')
+      }
 
       reportProgress('extracting_questions', 50, 'Extracting questions using AI...')
 
@@ -128,7 +163,7 @@ export class AIExtractionEngine {
       // Validate results if not skipped
       if (!options.skipValidation) {
         const validation = this.validator.validateExtractionResult(extractionResult)
-        
+
         if (!validation.isValid) {
           console.warn('Validation errors found:', validation.errors)
           // Continue with warnings, but log them
@@ -153,9 +188,9 @@ export class AIExtractionEngine {
       if (!options.skipStorage) {
         const storage = await getAIStorage()
         const fileHash = await aiStorageUtils.generateFileHash(pdfBuffer)
-        
+
         await storage.storeExtractionResult(actualFileName, fileHash, extractionResult)
-        
+
         // Cache for future use
         if (options.enableCache) {
           await storage.cacheExtraction(fileHash, extractionResult)
@@ -166,8 +201,8 @@ export class AIExtractionEngine {
 
       return extractionResult
 
-    } catch (error) {
-      reportProgress('error', 0, `Extraction failed: ${error.message}`)
+    } catch (error: any) {
+      reportProgress('error', 0, `Extraction failed: ${error?.message || 'Unknown error'}`)
       throw error
     } finally {
       // Clean up PDF processor

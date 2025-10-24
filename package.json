@@ -19,7 +19,10 @@
   },
   "version": "1.25.0",
   "dependencies": {
+    "@vercel/analytics": "^1.5.0",
+    "echarts": "^6.0.0",
     "lucide": "^0.545.0",
-    "lucide-vue-next": "0.544.0"
+    "lucide-vue-next": "0.544.0",
+    "pdfjs-dist": "^5.4.296"
   }
 }

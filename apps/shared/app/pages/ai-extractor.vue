@@ -306,16 +306,35 @@
         </UiCard>
 
         <!-- Error Section -->
-        <UiCard v-if="extractionError" class="p-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
+        <UiCard v-if="extractionError" class="p-6 border-2 border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30">
           <div class="flex items-start gap-3">
-            <Icon name="lucide:alert-circle" class="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <Icon name="lucide:alert-circle" class="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div class="flex-1">
-              <h3 class="font-semibold text-red-900 dark:text-red-100 mb-2">Extraction Failed</h3>
-              <p class="text-sm text-red-700 dark:text-red-300 mb-4">{{ extractionError }}</p>
-              <UiButton variant="outline" size="sm" @click="retryExtraction">
-                <Icon name="lucide:refresh-cw" class="h-4 w-4 mr-2" />
-                Retry
-              </UiButton>
+              <h3 class="font-bold text-lg text-red-900 dark:text-red-100 mb-2">Extraction Failed</h3>
+              <p class="text-sm text-red-700 dark:text-red-300 mb-3">{{ extractionError }}</p>
+              
+              <!-- Helpful Tips -->
+              <div class="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4">
+                <p class="text-xs font-semibold text-red-900 dark:text-red-100 mb-2">💡 Troubleshooting Tips:</p>
+                <ul class="text-xs text-red-800 dark:text-red-200 space-y-1 list-disc list-inside">
+                  <li>Ensure your PDF contains readable text (not scanned images)</li>
+                  <li>Check that the file size is under 10MB</li>
+                  <li>Verify your API key is correct and has quota remaining</li>
+                  <li>Try refreshing the page and uploading again</li>
+                  <li>If the issue persists, try a different PDF file</li>
+                </ul>
+              </div>
+              
+              <div class="flex gap-2">
+                <UiButton variant="outline" size="sm" class="border-red-400 text-red-700 hover:bg-red-100 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/30" @click="retryExtraction">
+                  <Icon name="lucide:refresh-cw" class="h-4 w-4 mr-2" />
+                  Retry Extraction
+                </UiButton>
+                <UiButton variant="outline" size="sm" class="border-red-400 text-red-700 hover:bg-red-100 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/30" @click="clearFile">
+                  <Icon name="lucide:x" class="h-4 w-4 mr-2" />
+                  Clear & Start Over
+                </UiButton>
+              </div>
             </div>
           </div>
         </UiCard>

@@ -37,6 +37,15 @@ export default defineNuxtConfig({
       projectVersion: '',
     },
   },
+  nitro: {
+    publicAssets: [
+      {
+        baseURL: '/assets/_mupdf/',
+        dir: 'public/assets/_mupdf',
+        maxAge: 60 * 60 * 24 * 365 // 1 year
+      }
+    ]
+  },
   routeRules: {
     '/cbt': { redirect: { to: '/cbt/interface', statusCode: 301 } },
   },

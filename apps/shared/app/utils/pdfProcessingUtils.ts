@@ -49,13 +49,22 @@ export class PDFProcessor {
    */
   async loadPDF(pdfBuffer: ArrayBuffer): Promise<void> {
     try {
-      // Use mupdf library that's already available in the project
-      const { createMuPDF } = await import('mupdf')
-      const mupdf = await createMuPDF()
+      // Use PDF.js instead of MuPDF for better browser compatibility
+      const pdfjsLib = await import('pdfjs-dist')
       
-      this.pdfDoc = mupdf.load(new Uint8Array(pdfBuffer))
-    } catch (error) {
-      throw new Error(`Failed to load PDF: ${error.message}`)
+      // Set worker source
+      if (typeof window !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+      }
+
+      // Load the PDF document
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBuffer })
+      this.pdfDoc = await loadingTask.promise
+      
+      console.log('✅ PDF loaded successfully with PDF.js')
+    } catch (error: any) {
+      console.error('PDF.js loading error:', error)
+      throw new Error(`Failed to load PDF: ${error?.message || 'Unknown error'}`)
     }
   }
 
@@ -68,7 +77,7 @@ export class PDFProcessor {
     }
 
     try {
-      const pageCount = this.pdfDoc.countPages()
+      const pageCount = this.pdfDoc.numPages
       const pages: PDFPageInfo[] = []
       let fullText = ''
 
@@ -76,13 +85,18 @@ export class PDFProcessor {
       const endPage = options.pageRange?.end || pageCount
 
       for (let i = startPage; i <= Math.min(endPage, pageCount); i++) {
-        const page = this.pdfDoc.loadPage(i - 1) // 0-based indexing
-        const pageText = page.toStructuredText('preserve-whitespace').asText()
+        const page = await this.pdfDoc.getPage(i)
+        const textContent = await page.getTextContent()
+        
+        // Extract text from text items
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ')
         
         const pageInfo: PDFPageInfo = {
           pageNumber: i,
           text: pageText,
-          hasImages: this.detectImages(page),
+          hasImages: false, // PDF.js doesn't easily detect images
           hasTables: this.detectTables(pageText),
           wordCount: this.countWords(pageText),
           confidence: this.calculateTextConfidence(pageText)
@@ -100,8 +114,8 @@ export class PDFProcessor {
         metadata,
         pages
       }
-    } catch (error) {
-      throw new Error(`Failed to extract text: ${error.message}`)
+    } catch (error: any) {
+      throw new Error(`Failed to extract text: ${error?.message || 'Unknown error'}`)
     }
   }
 
@@ -114,10 +128,11 @@ export class PDFProcessor {
     }
 
     try {
-      const page = this.pdfDoc.loadPage(pageNumber - 1)
-      return page.toStructuredText('preserve-whitespace').asText()
-    } catch (error) {
-      throw new Error(`Failed to extract text from page ${pageNumber}: ${error.message}`)
+      const page = await this.pdfDoc.getPage(pageNumber)
+      const textContent = await page.getTextContent()
+      return textContent.items.map((item: any) => item.str).join(' ')
+    } catch (error: any) {
+      throw new Error(`Failed to extract text from page ${pageNumber}: ${error?.message || 'Unknown error'}`)
     }
   }
 
@@ -153,12 +168,18 @@ export class PDFProcessor {
     }
 
     try {
-      // Basic metadata extraction
+      const metadata = await this.pdfDoc.getMetadata()
+      const info = metadata.info || {}
+      
       return {
         fileSize: 0, // Will be set by caller
-        title: 'Unknown',
-        author: 'Unknown',
-        subject: 'Unknown'
+        title: info.Title || 'Unknown',
+        author: info.Author || 'Unknown',
+        subject: info.Subject || 'Unknown',
+        creator: info.Creator,
+        producer: info.Producer,
+        creationDate: info.CreationDate ? new Date(info.CreationDate) : undefined,
+        modificationDate: info.ModDate ? new Date(info.ModDate) : undefined
       }
     } catch (error) {
       console.warn('Failed to extract PDF metadata:', error)
@@ -169,16 +190,12 @@ export class PDFProcessor {
   }
 
   /**
-   * Detect images in page
+   * Detect images in page (simplified for PDF.js)
    */
   private detectImages(page: any): boolean {
-    try {
-      // Simple heuristic - check if page has image objects
-      const resources = page.getResources()
-      return resources && Object.keys(resources).some(key => key.includes('Image'))
-    } catch {
-      return false
-    }
+    // PDF.js doesn't easily expose image detection
+    // Return false for now, can be enhanced later
+    return false
   }
 
   /**
