@@ -427,13 +427,16 @@ IMPORTANT: Return ONLY the JSON array, no other text.
         
         // Extract text from Gemini response structure
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-          const responseText = data.candidates[0].content.parts[0].text
-          console.log('📝 Response text length:', responseText.length)
-          return responseText
+          const parts = data.candidates[0].content.parts
+          if (parts && parts[0] && parts[0].text) {
+            const responseText = parts[0].text
+            console.log('📝 Response text length:', responseText.length)
+            return responseText
+          }
         }
         
-        console.error('❌ Invalid response structure:', data)
-        throw new Error('Invalid response structure from Gemini API')
+        console.error('❌ Invalid response structure:', JSON.stringify(data, null, 2))
+        throw new Error('Invalid response structure from Gemini API - missing candidates or parts')
         
       } catch (error) {
         if (attempt === this.config.maxRetries) {
@@ -492,7 +495,9 @@ IMPORTANT: Return ONLY the JSON array, no other text.
       return error as GeminiAPIError
     }
     
-    const apiError = new Error(error.message || 'Unknown Gemini API error') as GeminiAPIError
+    // Handle cases where error might be undefined or not have a message
+    const errorMessage = error?.message || error?.toString() || 'Unknown Gemini API error'
+    const apiError = new Error(errorMessage) as GeminiAPIError
     apiError.code = 'UNKNOWN_ERROR'
     apiError.retryable = false
     return apiError

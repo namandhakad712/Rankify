@@ -90,8 +90,11 @@ export async function renderDiagramFromPDF(
   scale: number = 2
 ): Promise<string> {
   try {
+    // Clone buffer to prevent detachment
+    const bufferClone = pdfBuffer.slice(0)
+    
     // Load PDF document
-    const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise
+    const pdf = await pdfjsLib.getDocument({ data: bufferClone }).promise
     const page = await pdf.getPage(coordinates.pageNumber)
     const viewport = page.getViewport({ scale })
     
@@ -144,7 +147,10 @@ export async function renderPDFPageToCanvas(
   scale: number = 2
 ): Promise<void> {
   try {
-    const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise
+    // Clone buffer to prevent detachment
+    const bufferClone = pdfBuffer.slice(0)
+    
+    const pdf = await pdfjsLib.getDocument({ data: bufferClone }).promise
     const page = await pdf.getPage(pageNumber)
     const viewport = page.getViewport({ scale })
     

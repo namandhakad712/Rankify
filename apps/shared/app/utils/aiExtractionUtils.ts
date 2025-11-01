@@ -150,7 +150,9 @@ export class AIExtractionEngine {
             const { matchDiagramsToQuestions } = await import('./diagramCoordinateUtils')
             
             console.log(`🎨 Detecting diagram coordinates for ${questionsWithDiagrams.length} questions...`)
-            const diagrams = await detectDiagramCoordinates(pdfBuffer, this.config.geminiApiKey)
+            // Clone buffer again before passing to diagram detection (PDF.js may detach it)
+            const diagramBuffer = pdfBuffer.slice(0)
+            const diagrams = await detectDiagramCoordinates(diagramBuffer, this.config.geminiApiKey)
             
             if (diagrams.length > 0) {
               console.log(`✅ Detected ${diagrams.length} diagrams with coordinates`)
@@ -217,9 +219,17 @@ export class AIExtractionEngine {
         const hasAnyDiagrams = extractionResult.questions.some(q => q.hasDiagram)
         if (hasAnyDiagrams) {
           try {
+            // Clone buffer one more time before storage to ensure it's not detached
+            const storageBuffer = pdfBuffer.slice(0)
+            
+            // Verify buffer is not detached before storage
+            if (storageBuffer.byteLength === 0) {
+              throw new Error('Buffer was detached before storage - cannot store PDF')
+            }
+            
             const { storePDFWithQuestions } = await import('./diagramStorage')
-            await storePDFWithQuestions(actualFileName, pdfBuffer, extractionResult.questions as any)
-            console.log(`💾 Stored PDF buffer for diagram rendering`)
+            await storePDFWithQuestions(actualFileName, storageBuffer, extractionResult.questions as any)
+            console.log(`💾 Stored PDF buffer for diagram rendering (${(storageBuffer.byteLength / 1024 / 1024).toFixed(2)}MB)`)
           } catch (storageError: any) {
             console.error('❌ Failed to store PDF buffer:', storageError?.message || storageError)
             console.error('Storage error details:', {

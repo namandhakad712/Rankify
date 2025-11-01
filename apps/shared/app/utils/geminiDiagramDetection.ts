@@ -38,11 +38,23 @@ For EACH diagram/figure/image you find, return:
   "nearbyQuestionNumber": <question number if detectable from nearby text>
 }
 
-IMPORTANT:
+CRITICAL REQUIREMENTS:
 - Use normalized coordinates (0-1) for resolution independence
-- Be precise with bounding boxes - include entire diagram but minimize whitespace
+- Include a small padding (5-10% extra) around diagrams to avoid cutting edges
+- Prefer RECTANGULAR or SQUARE bounding boxes - avoid extreme aspect ratios
+- For wide diagrams, ensure height is proportional (avoid thin horizontal strips)
+- For tall diagrams, ensure width is proportional (avoid thin vertical strips)
+- Include diagram labels and captions within the bounding box
+- Include any axis labels, legends, or related text near the diagram
+- Minimize whitespace but ensure nothing is cut off
 - If multiple diagrams on same page, return all of them
 - If no diagrams found, return empty array []
+
+ASPECT RATIO GUIDELINES:
+- Ideal: width/height ratio between 0.5 and 2.0 (not too stretched)
+- For circuits/graphs: Usually square-ish (ratio ~1.0)
+- For tables: Can be wider (ratio ~1.5)
+- For flowcharts: Can be taller (ratio ~0.7)
 
 Return ONLY a JSON array of diagram objects, no other text.
 `

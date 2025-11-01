@@ -335,22 +335,105 @@
                   </UiSelect>
                 </div>
                 <div class="flex items-end">
-                  <div class="flex items-center space-x-2">
-                    <UiSwitch
-                      id="has-diagram"
-                      v-model:checked="selectedQuestion.hasDiagram"
-                      @update:checked="markAsChanged"
-                    />
-                    <UiLabel
-                      for="has-diagram"
-                      class="flex items-center"
-                    >
-                      <Icon
-                        name="line-md:image"
-                        class="mr-2"
+                  <div class="flex flex-col gap-1">
+                    <div class="flex items-center space-x-2">
+                      <UiSwitch
+                        id="has-diagram"
+                        v-model:checked="selectedQuestion.hasDiagram"
+                        @update:checked="handleDiagramToggle"
                       />
-                      Has Diagram
-                    </UiLabel>
+                      <UiLabel
+                        for="has-diagram"
+                        class="flex items-center cursor-pointer"
+                      >
+                        <Icon
+                          name="line-md:image"
+                          class="mr-2"
+                        />
+                        Has Diagram
+                      </UiLabel>
+                    </div>
+                    <p v-if="!selectedQuestion.hasDiagram" class="text-xs text-slate-500 dark:text-slate-400 ml-11">
+                      Toggle ON to manually crop diagram
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Diagrams Section (Moved above question text) -->
+              <div v-if="selectedQuestion.hasDiagram" class="border-t pt-6">
+                <div class="flex items-center justify-between mb-4">
+                  <UiLabel class="text-base font-semibold">Diagrams</UiLabel>
+                  <div class="flex items-center gap-2">
+                    <UiBadge variant="outline" class="text-orange-600 border-orange-600">
+                      <Icon name="lucide:image" class="h-3 w-3 mr-1" />
+                      {{ selectedQuestion.diagrams?.length || 0 }} diagram(s)
+                    </UiBadge>
+                    <UiButton
+                      size="sm"
+                      variant="outline"
+                      @click="openDiagramCropper"
+                      :disabled="!pdfBuffer"
+                    >
+                      <Icon name="lucide:crop" class="h-4 w-4 mr-2" />
+                      {{ selectedQuestion.diagrams?.length ? 'Add/Edit Diagram' : 'Crop Diagram' }}
+                    </UiButton>
+                    <span v-if="!pdfBuffer" class="text-xs text-slate-500">
+                      (Loading PDF...)
+                    </span>
+                  </div>
+                </div>
+                
+                <div v-if="selectedQuestion.diagrams && selectedQuestion.diagrams.length > 0" class="space-y-4">
+                  <div 
+                    v-for="(diagram, idx) in selectedQuestion.diagrams" 
+                    :key="idx"
+                    class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {{ diagram.label || `Diagram ${idx + 1}` }}
+                      </span>
+                      <UiBadge variant="outline" class="text-xs">
+                        Page {{ diagram.pageNumber }}
+                      </UiBadge>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                      Coordinates: ({{ diagram.boundingBox.x.toFixed(2) }}, {{ diagram.boundingBox.y.toFixed(2) }}) 
+                      • Size: {{ (diagram.boundingBox.width * 100).toFixed(0) }}% × {{ (diagram.boundingBox.height * 100).toFixed(0) }}%
+                      • Confidence: {{ diagram.confidence }}/5
+                    </p>
+                    
+                    <!-- Rendered Diagram Image -->
+                    <div v-if="getDiagramImage(selectedQuestion.id, diagram.pageNumber)" class="rounded overflow-hidden border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800">
+                      <img 
+                        :src="getDiagramImage(selectedQuestion.id, diagram.pageNumber)!" 
+                        :alt="diagram.label || `Diagram ${idx + 1}`"
+                        class="w-full h-auto object-contain max-h-96"
+                        style="image-rendering: crisp-edges;"
+                      />
+                    </div>
+                    
+                    <!-- Loading/Placeholder -->
+                    <div v-else class="bg-slate-200 dark:bg-slate-600 rounded p-8 text-center text-slate-500 dark:text-slate-400">
+                      <Icon name="lucide:image" class="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p class="text-sm">{{ pdfBuffer ? 'Rendering diagram...' : 'Loading PDF buffer...' }}</p>
+                      <p class="text-xs mt-1">{{ pdfBuffer ? 'Please wait' : 'Diagram will appear once loaded' }}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-else class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <div class="flex items-start gap-3">
+                    <Icon name="lucide:alert-circle" class="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p class="text-sm font-medium text-orange-800 dark:text-orange-200">
+                        Diagram detected but coordinates not available
+                      </p>
+                      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                        This question has a diagram, but coordinate detection was not run during extraction.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -429,59 +512,6 @@
                   min="1"
                   @input="markAsChanged"
                 />
-              </div>
-
-              <!-- Diagrams Section -->
-              <div v-if="selectedQuestion.hasDiagram" class="border-t pt-6">
-                <div class="flex items-center justify-between mb-4">
-                  <UiLabel class="text-base font-semibold">Diagrams</UiLabel>
-                  <UiBadge variant="outline" class="text-orange-600 border-orange-600">
-                    <Icon name="lucide:image" class="h-3 w-3 mr-1" />
-                    {{ selectedQuestion.diagrams?.length || 0 }} diagram(s)
-                  </UiBadge>
-                </div>
-                
-                <div v-if="selectedQuestion.diagrams && selectedQuestion.diagrams.length > 0" class="space-y-4">
-                  <div 
-                    v-for="(diagram, idx) in selectedQuestion.diagrams" 
-                    :key="idx"
-                    class="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-lg border border-slate-200 dark:border-slate-600"
-                  >
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {{ diagram.label || `Diagram ${idx + 1}` }}
-                      </span>
-                      <UiBadge variant="outline" class="text-xs">
-                        Page {{ diagram.pageNumber }}
-                      </UiBadge>
-                    </div>
-                    <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
-                      Coordinates: ({{ diagram.boundingBox.x.toFixed(2) }}, {{ diagram.boundingBox.y.toFixed(2) }}) 
-                      • Size: {{ (diagram.boundingBox.width * 100).toFixed(0) }}% × {{ (diagram.boundingBox.height * 100).toFixed(0) }}%
-                      • Confidence: {{ diagram.confidence }}/5
-                    </p>
-                    <!-- Diagram preview would go here when PDF buffer is available -->
-                    <div class="bg-slate-200 dark:bg-slate-600 rounded p-8 text-center text-slate-500 dark:text-slate-400">
-                      <Icon name="lucide:image" class="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p class="text-sm">Diagram detected with coordinates</p>
-                      <p class="text-xs mt-1">(Rendering requires PDF buffer)</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div v-else class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                  <div class="flex items-start gap-3">
-                    <Icon name="lucide:alert-circle" class="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p class="text-sm font-medium text-orange-800 dark:text-orange-200">
-                        Diagram detected but coordinates not available
-                      </p>
-                      <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                        This question has a diagram, but coordinate detection was not run during extraction.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -629,6 +659,65 @@
         </UiDialogFooter>
       </UiDialogContent>
     </UiDialog>
+
+    <!-- Diagram Cropper Modal -->
+    <ClientOnly>
+      <UiDialog v-model:open="showDiagramCropper" :modal="true">
+        <UiDialogContent class="max-w-6xl max-h-[90vh] overflow-hidden" style="z-index: 9999 !important;">
+          <UiDialogHeader>
+            <UiDialogTitle>Crop Diagram for Question {{ selectedQuestion?.questionNumber }}</UiDialogTitle>
+            <UiDialogDescription>
+              Select the diagram area from the PDF page. You can drag and resize the selection box.
+            </UiDialogDescription>
+          </UiDialogHeader>
+          
+          <!-- Debug Info -->
+          <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded text-sm mb-3 font-mono">
+            <p><strong>Debug Info:</strong></p>
+            <p>PDF Buffer: {{ pdfBuffer ? '✅ Loaded (' + (pdfBuffer.byteLength / 1024 / 1024).toFixed(2) + 'MB)' : '❌ Not loaded' }}</p>
+            <p>Selected Question: {{ selectedQuestion ? '✅ Q' + selectedQuestion.questionNumber : '❌ None' }}</p>
+            <p>Coordinates: {{ currentDiagramCoordinates ? '✅ Ready' : '❌ Not set' }}</p>
+            <p>All conditions met: {{ !!(pdfBuffer && selectedQuestion && currentDiagramCoordinates) }}</p>
+          </div>
+        
+        <div v-if="currentDiagramCoordinates" class="overflow-y-auto max-h-[70vh]">
+          <p class="text-green-600 mb-2">✅ Rendering DiagramCoordinateEditor...</p>
+          <DiagramCoordinateEditor
+            v-if="pdfBuffer"
+            :pdf-buffer="pdfBuffer.slice(0)"
+            :coordinates="currentDiagramCoordinates"
+            @update:coordinates="handleDiagramCropped"
+          />
+          <p v-else class="text-red-600">❌ PDF Buffer missing!</p>
+        </div>
+        
+        <!-- Loading/Error State -->
+        <div v-else class="p-8 text-center bg-red-50 dark:bg-red-900/20 rounded">
+          <Icon name="lucide:alert-circle" class="h-12 w-12 mx-auto mb-4 text-red-500" />
+          <p class="text-slate-900 dark:text-slate-100 mb-2 font-bold">
+            {{ !pdfBuffer ? 'Loading PDF buffer...' : !currentDiagramCoordinates ? 'Coordinates not set!' : 'Loading editor...' }}
+          </p>
+          <p class="text-xs text-slate-600 dark:text-slate-400">
+            Buffer: {{ !!pdfBuffer }} | Question: {{ !!selectedQuestion }} | Coords: {{ !!currentDiagramCoordinates }}
+          </p>
+          <pre class="text-left text-xs mt-2 p-2 bg-white dark:bg-slate-800 rounded overflow-auto">{{ currentDiagramCoordinates }}</pre>
+        </div>
+        
+        <UiDialogFooter>
+          <UiButton
+            variant="outline"
+            @click="showDiagramCropper = false"
+          >
+            Cancel
+          </UiButton>
+          <UiButton @click="saveCroppedDiagram">
+            <Icon name="lucide:check" class="h-4 w-4 mr-2" />
+            Save Diagram
+          </UiButton>
+        </UiDialogFooter>
+        </UiDialogContent>
+      </UiDialog>
+    </ClientOnly>
   </div>
 </template>
 
@@ -646,6 +735,15 @@ const props = defineProps<{
 
 // Add fileName as a reactive reference for the template
 const fileNameRef = ref<string>('Unknown PDF')
+
+// PDF buffer for diagram rendering
+const pdfBuffer = ref<ArrayBuffer | null>(null)
+const diagramImages = ref<Map<string, string>>(new Map()) // Cache rendered diagrams
+
+// Diagram cropper state
+const showDiagramCropper = ref(false)
+const currentDiagramCoordinates = ref<any>(null)
+const tempCroppedDiagram = ref<any>(null)
 
 // Emits
 const emit = defineEmits<{
@@ -935,8 +1033,216 @@ const clearDraftFromStorage = () => {
 
 // Note: Auto-save is handled directly in markAsChanged via scheduleAutoSave()
 
+// Load PDF buffer from IndexedDB
+const loadPDFBuffer = async () => {
+  try {
+    const { listAllPDFs, getPDFBuffer } = await import('#layers/shared/app/utils/diagramStorage')
+    
+    // Get all stored PDFs
+    const pdfs = await listAllPDFs()
+    console.log('📦 Found stored PDFs:', pdfs.length)
+    
+    if (pdfs.length > 0) {
+      // Get the most recent PDF (or match by filename)
+      const targetPdf = pdfs.find(pdf => pdf.fileName === props.fileName) || pdfs[pdfs.length - 1]
+      console.log('📄 Loading PDF:', targetPdf.fileName)
+      
+      const buffer = await getPDFBuffer(targetPdf.id)
+      if (buffer) {
+        pdfBuffer.value = buffer
+        console.log('✅ PDF buffer loaded:', (buffer.byteLength / 1024 / 1024).toFixed(2), 'MB')
+        
+        // Render diagrams for questions with diagrams
+        await renderDiagrams()
+      }
+    } else {
+      console.warn('⚠️ No PDF buffers found in storage')
+    }
+  } catch (error) {
+    console.error('❌ Failed to load PDF buffer:', error)
+  }
+}
+
+// Render diagrams from PDF buffer
+const renderDiagrams = async () => {
+  if (!pdfBuffer.value) return
+  
+  try {
+    const { renderDiagramFromPDF } = await import('#layers/shared/app/utils/diagramCoordinateUtils')
+    
+    // Render diagrams for all questions
+    for (const question of editableQuestions.value) {
+      if (question.hasDiagram && question.diagrams && question.diagrams.length > 0) {
+        for (const diagram of question.diagrams) {
+          const key = `${question.id}-${diagram.pageNumber}`
+          
+          try {
+            // Pass the ArrayBuffer, not the PDF document object
+            const imageData = await renderDiagramFromPDF(
+              pdfBuffer.value,
+              diagram,
+              2 // scale
+            )
+            diagramImages.value.set(key, imageData)
+            console.log(`✅ Rendered diagram for Q${question.id}`)
+          } catch (error) {
+            console.error(`❌ Failed to render diagram for Q${question.id}:`, error)
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('❌ Failed to render diagrams:', error)
+  }
+}
+
+// Get rendered diagram image
+const getDiagramImage = (questionId: number, pageNumber: number): string | null => {
+  const key = `${questionId}-${pageNumber}`
+  return diagramImages.value.get(key) || null
+}
+
+// Handle diagram toggle
+const handleDiagramToggle = (checked: boolean) => {
+  markAsChanged()
+  
+  // If toggled ON and no diagrams exist, open cropper
+  if (checked && (!selectedQuestion.value?.diagrams || selectedQuestion.value.diagrams.length === 0)) {
+    if (pdfBuffer.value) {
+      console.log('📸 Opening diagram cropper for manual selection...')
+      // Small delay to let the UI update
+      setTimeout(() => {
+        openDiagramCropper()
+      }, 100)
+    } else {
+      console.warn('⚠️ PDF buffer not loaded yet')
+      alert('PDF is still loading. Please wait a moment and try again.')
+      // Revert the toggle
+      if (selectedQuestion.value) {
+        selectedQuestion.value.hasDiagram = false
+      }
+    }
+  }
+  
+  // If toggled OFF, clear diagrams
+  if (!checked && selectedQuestion.value) {
+    selectedQuestion.value.diagrams = []
+    console.log('🗑️ Cleared diagrams for question', selectedQuestion.value.questionNumber)
+  }
+}
+
+// Open diagram cropper
+const openDiagramCropper = async () => {
+  console.log('🎨 Opening diagram cropper...')
+  console.log('  - Selected question:', selectedQuestion.value?.questionNumber)
+  console.log('  - PDF buffer available:', !!pdfBuffer.value)
+  console.log('  - PDF buffer size:', pdfBuffer.value ? (pdfBuffer.value.byteLength / 1024 / 1024).toFixed(2) + 'MB' : 'N/A')
+  console.log('  - showDiagramCropper before:', showDiagramCropper.value)
+  
+  if (!selectedQuestion.value) {
+    console.error('❌ No question selected')
+    return
+  }
+  
+  if (!pdfBuffer.value) {
+    console.error('❌ No PDF buffer available')
+    alert('PDF buffer not loaded yet. Please wait a moment and try again.')
+    return
+  }
+  
+  // If question already has a diagram, use its coordinates
+  if (selectedQuestion.value.diagrams && selectedQuestion.value.diagrams.length > 0) {
+    currentDiagramCoordinates.value = selectedQuestion.value.diagrams[0]
+    console.log('✅ Using existing diagram coordinates')
+  } else {
+    // Create default coordinates (center of page)
+    currentDiagramCoordinates.value = {
+      pageNumber: selectedQuestion.value.pageNumber,
+      boundingBox: {
+        x: 0.1,
+        y: 0.1,
+        width: 0.8,
+        height: 0.6
+      },
+      confidence: 5,
+      label: `Diagram for Q${selectedQuestion.value.questionNumber}`,
+      type: 'other',
+      description: 'Manually cropped diagram'
+    }
+    console.log('✅ Created default diagram coordinates')
+  }
+  
+  console.log('  - Coordinates:', currentDiagramCoordinates.value)
+  console.log('  - Coordinates type:', typeof currentDiagramCoordinates.value)
+  console.log('  - Coordinates keys:', currentDiagramCoordinates.value ? Object.keys(currentDiagramCoordinates.value) : 'null')
+  
+  showDiagramCropper.value = true
+  console.log('✅ Modal opened:', showDiagramCropper.value)
+  
+  // Force a nextTick to ensure reactivity
+  await nextTick()
+  console.log('After nextTick - currentDiagramCoordinates still set:', !!currentDiagramCoordinates.value)
+}
+
+// Handle diagram cropped
+const handleDiagramCropped = (coordinates: any) => {
+  tempCroppedDiagram.value = coordinates
+}
+
+// Save cropped diagram
+const saveCroppedDiagram = async () => {
+  if (!selectedQuestion.value || !tempCroppedDiagram.value) return
+  
+  // Initialize diagrams array if it doesn't exist
+  if (!selectedQuestion.value.diagrams) {
+    selectedQuestion.value.diagrams = []
+  }
+  
+  // Add or update the diagram
+  if (selectedQuestion.value.diagrams.length > 0) {
+    selectedQuestion.value.diagrams[0] = tempCroppedDiagram.value
+  } else {
+    selectedQuestion.value.diagrams.push(tempCroppedDiagram.value)
+  }
+  
+  // Mark as changed
+  markAsChanged()
+  
+  // Re-render the diagram
+  await renderSingleDiagram(selectedQuestion.value.id, tempCroppedDiagram.value)
+  
+  // Close the cropper
+  showDiagramCropper.value = false
+  tempCroppedDiagram.value = null
+  
+  console.log('✅ Diagram saved for question', selectedQuestion.value.questionNumber)
+}
+
+// Render a single diagram
+const renderSingleDiagram = async (questionId: number, diagram: any) => {
+  if (!pdfBuffer.value) return
+  
+  try {
+    const { renderDiagramFromPDF } = await import('#layers/shared/app/utils/diagramCoordinateUtils')
+    
+    const key = `${questionId}-${diagram.pageNumber}`
+    
+    // Pass the ArrayBuffer and the full diagram coordinates object
+    const imageData = await renderDiagramFromPDF(
+      pdfBuffer.value,
+      diagram,
+      2 // scale
+    )
+    
+    diagramImages.value.set(key, imageData)
+    console.log(`✅ Rendered diagram for Q${questionId}`)
+  } catch (error) {
+    console.error(`❌ Failed to render diagram:`, error)
+  }
+}
+
 // Initialize
-onMounted(() => {
+onMounted(async () => {
   // Try to load from props first, then from localStorage
   if (props.questions && props.questions.length > 0) {
     editableQuestions.value = JSON.parse(JSON.stringify(props.questions))
@@ -966,6 +1272,9 @@ onMounted(() => {
     selectedQuestionId.value = editableQuestions.value[0].id
     validateCurrentQuestion()
   }
+  
+  // Load PDF buffer for diagram rendering
+  await loadPDFBuffer()
 })
 
 // Watch for prop changes
